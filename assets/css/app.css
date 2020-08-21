@@ -1,0 +1,27 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: lightgray;
+    font-family: sans-serif;
+}
+
+.calendar {
+    width: 100%;
+}
+
+.calendar-cell {
+    background-color: white;
+    min-height: calc(100vh / 7);
+    text-align: right;
+    padding-top: 5px;
+    padding-right: 5px;
+    border-radius: 2px;
+    color: #999;
+    /* font-size: 14px; */
+}
+
+.day-label.this-month {
+    color: #000;
+}
