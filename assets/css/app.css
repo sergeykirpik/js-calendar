@@ -7,13 +7,28 @@ body {
     font-family: sans-serif;
 }
 
+.container {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
 .calendar {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
 }
 
+.calendar-row{
+    display: flex;
+}
+
+.calendar-head {
+    flex: 1;
+    text-align: center;
+}
+
 .calendar-cell {
+    /* flex: 1; */
     background-color: white;
     min-height: calc(100vh / 7);
     text-align: right;
@@ -21,7 +36,9 @@ body {
     padding-right: 5px;
     /* border-radius: 3px; */
     color: #ccc;
-    /* font-size: 14px; */
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    width: calc(100% / 7);
 }
 
 .calendar-cell.shaded {

@@ -4,26 +4,22 @@
 
 {% block body %}
     <div class="container">
-        <table class="calendar">
-            <tbody>
-                <tr>
-                    {% for day in days_of_week %}
-                        <th>{{ day }}</th>
-                    {% endfor %}
-                </tr>
-                {% for week in 0..5 %}
-                    <tr>
-                    {% for day in 0..6 %}
-                        {% set n = week * 7 + day %}
-                        <td>
-                            <div class="calendar-cell">
-                                <span class="day-label">{{ n }}</span>
-                            </div>
-                        </td>
-                    {% endfor %}
-                    </tr>
+        <div class="calendar">
+            <div class="calendar-row">
+                {% for day in days_of_week %}
+                    <div class="calendar-head">{{ day }}</div>
                 {% endfor %}
-            </tbody>
-        </table>
+            </div>
+            {% for week in 0..5 %}
+                <div class="calendar-row">
+                {% for day in 0..6 %}
+                    {% set n = week * 7 + day %}
+                    <div class="calendar-cell">
+                        <span class="day-label">{{ n }}</span>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

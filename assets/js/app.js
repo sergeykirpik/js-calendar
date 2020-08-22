@@ -98,8 +98,8 @@ function setDateInterval() {
 
     el = document.createElement('div');
     el.className = 'calendar-interval red';
-    el.style.width = rect.width*2+'px';
-    el.textContent = 'New event';
+    el.style.width = rect.width*1+'px';
+    el.textContent = 'New event jsjlksajd asjdka sdj aslkdj askd laksj ldjk';
     cell.appendChild(el);
 
     el = document.createElement('div');
