@@ -9,6 +9,8 @@ body {
 
 .calendar {
     width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .calendar-cell {
@@ -17,11 +19,55 @@ body {
     text-align: right;
     padding-top: 5px;
     padding-right: 5px;
-    border-radius: 2px;
-    color: #999;
+    /* border-radius: 3px; */
+    color: #ccc;
     /* font-size: 14px; */
+}
+
+.calendar-cell.shaded {
+    background-color: rgb(180, 233, 207);
+}
+
+.calendar-interval {
+    /* min-height: 25px; */
+    border-radius: 5px;
+    border: 1px solid #555;
+    position: relative;
+    z-index: 9999;
+    padding: 2px 4px;
+    color: #333;
+    text-align: left;
+    margin-top: 2px;
+}
+
+.green {
+    background-color: #aaffaa;
+}
+
+.red {
+    background-color: #ffaaaa;
+}
+
+.yellow {
+    background-color: #eeeeaa;
+}
+
+.blue {
+    background-color: #aaaaff;
+}
+
+.violet {
+    background-color: #eeaaee;
 }
 
 .day-label.this-month {
     color: #000;
+}
+
+.day-label.today {
+    color: #fff;
+    background-color: rgb(0, 143, 19);
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 50%;
 }

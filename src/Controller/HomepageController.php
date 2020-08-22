@@ -12,8 +12,9 @@ class HomepageController extends AbstractController
      */
     public function index()
     {
+        $daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         return $this->render('homepage/index.html.twig', [
-            'controller_name' => 'HomepageController',
+            'days_of_week' => $daysOfWeek,
         ]);
     }
 }
