@@ -29,13 +29,11 @@ body {
 }
 
 .calendar-cell {
-    /* flex: 1; */
     background-color: white;
     min-height: calc(100vh / 7);
     text-align: right;
     padding-top: 5px;
     padding-right: 5px;
-    /* border-radius: 3px; */
     color: #ccc;
     border-left: 1px solid #ccc;
     border-top: 1px solid #ccc;
@@ -43,20 +41,38 @@ body {
 }
 
 .calendar-cell.shaded {
-    background-color: rgb(180, 233, 207);
+    background-color: rgba(255, 255, 255, 0.9);
 }
 
 .calendar-interval {
-    /* min-height: 25px; */
     border-radius: 5px;
     border: 1px solid #555;
     position: relative;
-    z-index: 9999;
+    z-index: 100;
     padding: 2px 4px;
     color: #333;
     text-align: left;
     margin-top: 2px;
-    cursor: pointer;
+}
+
+.calendar-interval.selected {
+    z-index: 101;
+}
+
+.calendar-interval.green.selected {
+    box-shadow: 0 0 20px 1px rgba(0, 255, 0, 0.5);
+}
+
+.calendar-interval.red.selected {
+    box-shadow: 0 0 20px 1px rgba(255, 0, 0, 0.5);
+}
+
+.calendar-interval.yellow.selected {
+    box-shadow: 0 0 20px 1px rgba(255, 255, 0, 0.5);
+}
+
+.calendar-interval.violet.selected {
+    box-shadow: 0 0 20px 1px rgba(255, 0, 255, 0.5);
 }
 
 .green {
@@ -83,6 +99,10 @@ body {
     visibility: hidden;
 }
 
+.dialog.hidden {
+    visibility: hidden;
+}
+
 .day-label.this-month {
     color: #000;
 }
@@ -93,5 +113,20 @@ body {
     font-weight: bold;
     padding: 5px;
     border-radius: 50%;
+    margin-right: -5px;
 }
 
+
+/* Dialog */
+
+.dialog {
+    background-color: #eee;
+    top: 50px;
+    left: 20px;
+    position: fixed;
+    min-width: 20%;
+    min-height: 50vh;
+    z-index: 200;
+    border: 2px solid grey;
+    padding: 10px;
+}
