@@ -5,6 +5,7 @@
 body {
     background-color: lightgray;
     font-family: sans-serif;
+    user-select: none;
 }
 
 .container {
@@ -55,6 +56,7 @@ body {
     color: #333;
     text-align: left;
     margin-top: 2px;
+    cursor: pointer;
 }
 
 .green {
@@ -77,6 +79,10 @@ body {
     background-color: #eeaaee;
 }
 
+.hidden {
+    visibility: hidden;
+}
+
 .day-label.this-month {
     color: #000;
 }
@@ -88,3 +94,4 @@ body {
     padding: 5px;
     border-radius: 50%;
 }
+

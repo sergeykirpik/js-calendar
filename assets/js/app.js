@@ -82,47 +82,81 @@ function updateLabels() {
     }
 }
 
+function appendBlock(parent, { color, width })
+{
+    let el = document.createElement('div');
+    el.classList.add('calendar-interval');
+    el.classList.add(color);
+    el.style.width = width+'px';
+    el.textContent = 'New event';
+    parent.appendChild(el);
+}
+
 function setDateInterval() {
     const calendar = document.querySelector('#calendar');
-    const cell = document.querySelectorAll('.calendar-cell')[10];
+    const cells = document.querySelectorAll('.calendar-cell');
 
-    const rect = cell.getBoundingClientRect();
+    const cellWidth = cells[0].getBoundingClientRect().width;
 
-    let el = document.createElement('div');
-    el.className = 'calendar-interval green';
-    el.style.width = rect.width*2+'px';
-    // el.style.top = rect.top+25+'px';
-    // el.style.left = rect.left+'px';
-    el.textContent = 'New event';
-    cell.appendChild(el);
+    appendBlock(cells[ 9], { color: 'green'  , width: 2*cellWidth });
+    appendBlock(cells[10], { color: 'hidden' , width: 1*cellWidth });
 
-    el = document.createElement('div');
-    el.className = 'calendar-interval red';
-    el.style.width = rect.width*1+'px';
-    el.textContent = 'New event jsjlksajd asjdka sdj aslkdj askd laksj ldjk';
-    cell.appendChild(el);
+    appendBlock(cells[10], { color: 'red'    , width: 2*cellWidth });
 
-    el = document.createElement('div');
-    el.className = 'calendar-interval yellow';
-    el.style.width = rect.width*2+'px';
-    el.textContent = 'New event';
-    cell.appendChild(el);
+    appendBlock(cells[11], { color: 'hidden' , width: 1*cellWidth });
+    appendBlock(cells[11], { color: 'hidden' , width: 1*cellWidth });
 
-    el = document.createElement('div');
-    el.className = 'calendar-interval blue';
-    el.style.width = rect.width*2+'px';
-    el.textContent = 'New event';
-    cell.appendChild(el);
+    appendBlock(cells[11], { color: 'yellow' , width: 2*cellWidth });
 
-    el = document.createElement('div');
-    el.className = 'calendar-interval violet';
-    el.style.width = rect.width*2+'px';
-    el.textContent = 'New event';
-    cell.appendChild(el);
-
+    // appendBlock(cells[9], { color: 'blue'   , width: 2*cellWidth });
+    // appendBlock(cells[9], { color: 'violet' , width: 3*cellWidth });
 }
 
 updateLabels();
 
 setDateInterval();
 
+function setupDragAndDrop() {
+    let lastMouseDownEvent = null;
+
+    /**
+     *
+     * @param {MouseEvent} e
+     */
+    const mouseMoveHandler = function(e) {
+        //console.log(e.clientX, e.clientY);
+        if (lastMouseDownEvent) {
+            const { target, offsetX, offsetY } = lastMouseDownEvent;
+            target.style.position = 'absolute';
+            target.style.left = e.clientX-offsetX+'px';
+            target.style.top  = e.clientY-offsetY+'px';
+        }
+    }
+
+    const mouseUpHandler = function(e) {
+        console.log('mouseup');
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseup', mouseUpHandler);
+        lastMouseDownEvent = null;
+    }
+
+    /**
+     *
+     * @param {MouseEvent} e
+     */
+    const mouseDownHandler = function(e) {
+        console.log('mousedown');
+        if (e.target.classList.contains('calendar-interval')) {
+            console.log(e.target);
+            console.log(e.offsetX, e.offsetY);
+            lastMouseDownEvent = e;
+            document.addEventListener('mousemove', mouseMoveHandler);
+            document.addEventListener('mouseup', mouseUpHandler);
+        }
+    }
+
+    document.addEventListener('mousedown', mouseDownHandler);
+
+}
+
+setupDragAndDrop();
