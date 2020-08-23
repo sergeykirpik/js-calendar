@@ -5,11 +5,14 @@
 {% block body %}
     <div class="container">
         <div class="calendar">
-            <div class="calendar-row">
-                {% for day in days_of_week %}
-                    <div class="calendar-head">{{ day }}</div>
-                {% endfor %}
+            <div class="calendar-heading-wrapper">
+                <div class="calendar-heading">
+                    {% for day in days_of_week %}
+                        <div class="item">{{ day }}</div>
+                    {% endfor %}
+                </div>
             </div>
+            <div class="mb2"></div>
             {% for week in 0..5 %}
                 <div class="calendar-row">
                 {% for day in 0..6 %}
@@ -20,11 +23,7 @@
                 {% endfor %}
                 </div>
             {% endfor %}
-            <div class="dialog hidden">
-                Dialog
-            </div>
-    </div>
-
+            {% include 'homepage/_edit_interval.html.twig' %}
         </div>
     </div>
 
