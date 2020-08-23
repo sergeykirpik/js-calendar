@@ -17,15 +17,40 @@ body {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
+    padding-right: 10px;
+    overflow-x: hidden;
 }
 
-.calendar-row{
+.calendar-heading-wrapper {
+    position: fixed;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    z-index: 500;
+}
+
+.calendar-heading {
+    position: relative;
     display: flex;
 }
 
-.calendar-head {
+.calendar-heading .item {
     flex: 1;
     text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.calendar-heading .item:last-child {
+    border-right: none;
+}
+
+.calendar-row {
+    display: flex;
+}
+
+.calendar-row:nth-child(odd) .calendar-cell{
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 .calendar-cell {
@@ -46,57 +71,27 @@ body {
 
 .calendar-interval {
     border-radius: 5px;
-    border: 1px solid #555;
+    border: 1px solid #bbb;
     position: relative;
     z-index: 100;
-    padding: 2px 4px;
+    padding: 5px 4px;
     color: #333;
     text-align: left;
     margin-top: 2px;
 }
 
 .calendar-interval.selected {
-    z-index: 101;
-}
-
-.calendar-interval.green.selected {
-    box-shadow: 0 0 20px 1px rgba(0, 255, 0, 0.5);
-}
-
-.calendar-interval.red.selected {
-    box-shadow: 0 0 20px 1px rgba(255, 0, 0, 0.5);
-}
-
-.calendar-interval.yellow.selected {
-    box-shadow: 0 0 20px 1px rgba(255, 255, 0, 0.5);
-}
-
-.calendar-interval.violet.selected {
-    box-shadow: 0 0 20px 1px rgba(255, 0, 255, 0.5);
-}
-
-.green {
-    background-color: #aaffaa;
-}
-
-.red {
-    background-color: #ffaaaa;
-}
-
-.yellow {
-    background-color: #eeeeaa;
-}
-
-.blue {
-    background-color: #aaaaff;
-}
-
-.violet {
-    background-color: #eeaaee;
+    z-index: 110;
+    transform: scale(1.2);
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
 }
 
 .hidden {
     visibility: hidden;
+}
+
+.d-none {
+    display: none;
 }
 
 .dialog.hidden {
@@ -109,24 +104,21 @@ body {
 
 .day-label.today {
     color: #fff;
-    background-color: rgb(0, 143, 19);
+    background-color: rgba(0, 0, 0, 0.5);
     font-weight: bold;
     padding: 5px;
     border-radius: 50%;
     margin-right: -5px;
 }
 
+.d-flex {
+    display: flex;
+}
 
-/* Dialog */
+.f-right {
+    float: right;
+}
 
-.dialog {
-    background-color: #eee;
-    top: 50px;
-    left: 20px;
-    position: fixed;
-    min-width: 20%;
-    min-height: 50vh;
-    z-index: 200;
-    border: 2px solid grey;
-    padding: 10px;
+.v-center {
+    align-items: center;
 }

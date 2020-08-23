@@ -1,0 +1,68 @@
+.dialog {
+    background-color: #eee;
+    top: 20px;
+    left: 20px;
+    position: fixed;
+    width: 300px;
+    max-height: 90vh;
+    z-index: 600;
+    border: 2px solid #eee;
+    overflow: hidden;
+    overflow-y: scroll;
+    box-shadow: 0 0 20px rgba(0, 0, 0, .8);
+}
+
+.dialog-container {
+    padding: 0 10px 10px 10px;
+}
+
+.dialog h2 {
+    background-color: #000033;
+    color: white;
+    font-size: 14px;
+    margin: 0;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.inline {
+    flex-direction: row;
+}
+
+.form-group input,
+.form-group textarea
+{
+    width: 100%;
+    padding: 5px 5px;
+    border-radius: 3px;
+    border: 1px solid #aaa;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+}
+
+.mb1 {
+    margin-bottom: 5px;
+}
+
+.mb2 {
+    margin-bottom: 25px;
+}
+
+.color-swatch {
+    flex: 1;
+    border: 1px solid #888;
+    border-radius: 3px;
+    min-height: 25px;
+    cursor: pointer;
+}
+
+.status {
+    float: right;
+}
