@@ -46,15 +46,15 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
         $event->setAuthor($faker->randomElement($users)->getEmail());
         $event->setColor($faker->hexColor);
         $event->setStatus($faker->randomElement($statuses));
-        $event->setStart($start);
-        $event->setFinish($finish);
+        $event->setStartDate($start);
+        $event->setEndDate($finish);
 
         return $event;
     }
 
     public function load(ObjectManager $manager)
     {
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $manager->persist($this->randomEvent());
         }
         $manager->flush();

@@ -25,12 +25,12 @@ class Event
     /**
      * @ORM\Column(type="datetime")
      */
-    private $start;
+    private $startDate;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $finish;
+    private $endDate;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -65,30 +65,6 @@ class Event
     public function setTitle(string $title): self
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    public function getStart(): ?\DateTimeInterface
-    {
-        return $this->start;
-    }
-
-    public function setStart(\DateTimeInterface $start): self
-    {
-        $this->start = $start;
-
-        return $this;
-    }
-
-    public function getFinish(): ?\DateTimeInterface
-    {
-        return $this->finish;
-    }
-
-    public function setFinish(\DateTimeInterface $finish): self
-    {
-        $this->finish = $finish;
 
         return $this;
     }
@@ -137,6 +113,30 @@ class Event
     public function setAuthor(?string $author): self
     {
         $this->author = $author;
+
+        return $this;
+    }
+
+    public function getStartDate(): ?\DateTimeInterface
+    {
+        return $this->startDate;
+    }
+
+    public function setStartDate(\DateTimeInterface $startDate): self
+    {
+        $this->startDate = $startDate;
+
+        return $this;
+    }
+
+    public function getEndDate(): ?\DateTimeInterface
+    {
+        return $this->endDate;
+    }
+
+    public function setEndDate(\DateTimeInterface $endDate): self
+    {
+        $this->endDate = $endDate;
 
         return $this;
     }
