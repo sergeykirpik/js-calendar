@@ -16,6 +16,13 @@ class EventController extends AbstractController
      */
     public function index(EventRepository $eventRepository)
     {
-        return $this->json([ 'data' => $eventRepository->findAll() ]);
+        return $this->json([ 'data' => $eventRepository->findBy([], ['startDate' => 'ASC']) ]);
+    }
+
+    /**
+     * @Route("/{id}")
+     */
+    public function show($id, EventRepository $eventRepository) {
+        return $this->json( ['data' => $eventRepository->find($id) ]);
     }
 }
