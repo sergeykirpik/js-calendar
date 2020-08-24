@@ -7,7 +7,7 @@ import {
     toLocalISODate,
 } from './date_utils';
 
-import { makeGradient, colorBrightness } from './color_utils';
+import { setElementColor } from './color_utils';
 
 import { setupEvents } from './events';
 
@@ -73,7 +73,7 @@ function placeEvent(cells, {id, color, startDate, endDate, title }) {
 }
 
 
-function renderInterval(cells, { startIndex, endIndex, id, text, color, className })
+function renderInterval(cells, { startIndex, endIndex, id, text, color, className='' })
 {
     const cellWidth = cells[0].getBoundingClientRect().width;
     const maxIndex = getIndex(maxDate());
@@ -93,6 +93,7 @@ function renderInterval(cells, { startIndex, endIndex, id, text, color, classNam
     }
 }
 
+
 function appendInterval(parent, { id, color, className, width, text='NewEvent' })
 {
     if (!parent) {
@@ -109,10 +110,7 @@ function appendInterval(parent, { id, color, className, width, text='NewEvent' }
         el.style.paddingLeft = "200px";
     }
     if (color) {
-        el.style.background = makeGradient(color);
-    }
-    if (color && colorBrightness(color) <= 125) {
-        el.style.color = 'white';
+        setElementColor(el, color);
     }
     parent.appendChild(el);
 }

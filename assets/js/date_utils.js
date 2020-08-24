@@ -79,11 +79,26 @@ function toLocalISOTime(date) {
     return `${hours}:${minutes}:${seconds}`;
 }
 
+/**
+ *
+ * @param {Date|string} date
+ */
+function toLocalISOTimeWithoutSeconds(date) {
+    if (!(date instanceof Date)) {
+        date = new Date(date);
+    }
+    const hours = padWithZero(date.getHours());
+    const minutes = padWithZero(date.getMinutes());
+
+    return `${hours}:${minutes}`;
+}
+
+
 function toLocalISODateAndTime(date) {
     return toLocalISODate(date)+'T'+toLocalISOTime(date);
 }
 
 export {
     startOfMonth, startOfNextMonth, addDays, isToday, diffInDays,
-    padWithZero, toLocalISODate, toLocalISOTime, toLocalISODateAndTime
+    padWithZero, toLocalISODate, toLocalISOTime, toLocalISODateAndTime, toLocalISOTimeWithoutSeconds
 };

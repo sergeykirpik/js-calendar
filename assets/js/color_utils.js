@@ -12,5 +12,13 @@ function colorBrightness(hexColor) {
     return Math.round((299 * r + 587 * g + 114 * b) / 1000);
 }
 
+function setElementColor(el, color) {
+    el.style.background = makeGradient(color);
+    if (color && colorBrightness(color) <= 125) {
+        el.style.color = 'white';
+    } else {
+        el.style.color = 'black';
+    }
+}
 
-export { makeGradient, colorBrightness };
+export { setElementColor };
