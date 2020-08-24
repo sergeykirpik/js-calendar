@@ -53,4 +53,37 @@ function isToday(date) {
     ;
 }
 
-export {startOfMonth, startOfNextMonth, addDays, isToday, diffInDays};
+function toLocalISODate(date) {
+    if (!(date instanceof Date)) {
+        date = new Date(date);
+    }
+    const year = date.getFullYear();
+    const month = padWithZero(date.getMonth() + 1);
+    const day = padWithZero(date.getDate());
+
+    return `${year}-${month}-${day}`;
+}
+
+/**
+ *
+ * @param {Date|string} date
+ */
+function toLocalISOTime(date) {
+    if (!(date instanceof Date)) {
+        date = new Date(date);
+    }
+    const hours = padWithZero(date.getHours());
+    const minutes = padWithZero(date.getMinutes());
+    const seconds = padWithZero(date.getSeconds());
+
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+function toLocalISODateAndTime(date) {
+    return toLocalISODate(date)+'T'+toLocalISOTime(date);
+}
+
+export {
+    startOfMonth, startOfNextMonth, addDays, isToday, diffInDays,
+    padWithZero, toLocalISODate, toLocalISOTime, toLocalISODateAndTime
+};

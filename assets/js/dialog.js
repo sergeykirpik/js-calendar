@@ -1,10 +1,20 @@
 import { makeGradient } from './color_utils';
 
+import { toLocalISOTime, toLocalISODate } from './date_utils';
+
 function fillDialog(dialog, data) {
+    console.log(data);
+
     dialog.querySelector('.status').textContent = `[ ${data['status']} ]`;
     const form = dialog.querySelector('form');
     form.title.value = data['title'];
     form.description.value = data['description'];
+    form.startDate.value = toLocalISODate(data['startDate']);
+    form.endDate.value = toLocalISODate(data['endDate']);
+
+    form.startTime.value = toLocalISOTime(data['startDate']);
+    form.endTime.value = toLocalISOTime(data['endDate']);
+
     form.querySelector('.color-swatch').style.background = makeGradient(data['color']);
     form.author.value = data['author'];
 }
@@ -13,22 +23,30 @@ function openDialog(id) {
     const dialog = document.querySelector('.dialog');
     if (dialog) {
         dialog.classList.remove('hidden');
+        dialog.classList.remove('transparent');
     }
     fetch('/api/events/'+id)
         .then(response => response.json())
         .then(data => {
             fillDialog(dialog, data.data);
-            console.log(Object.keys(data.data));
-            dialog.querySelector('.info').textContent =
-                Object.keys(data.data).map(k => k+": " + data.data[k]).join('\n');
         });
     dialog.querySelector('.status').textContent = `[ Loading: id: ${id}... ]`;
+}
+
+function hideOnTransitionComplete(e) {
+    if (e.target.classList.contains('dialog')) {
+        console.log('hide');
+        e.target.removeEventListener('transitionend', hideOnTransitionComplete);
+        e.target.classList.add('hidden');
+    }
 }
 
 function closeDialog() {
     const dialog = document.querySelector('.dialog')
     if (dialog) {
-        dialog.classList.add('hidden');
+        console.log('close');
+        dialog.classList.add('transparent');
+        dialog.addEventListener('transitionend', hideOnTransitionComplete);
     }
 }
 
@@ -37,13 +55,11 @@ function makeDraggable(dialog) {
     let lastMouseDownEvent = null;
 
     const drag = function(e) {
-        console.log('drag');
         dialog.style.left = e.clientX - lastMouseDownEvent.offsetX + 'px';
         dialog.style.top  = e.clientY - lastMouseDownEvent.offsetY + 'px';
     }
 
     const dragStop = function() {
-        console.log('stop drag');
         document.removeEventListener('mousemove', drag);
         document.removeEventListener('mouseup', dragStop);
     }
@@ -63,7 +79,9 @@ function setupDialogs() {
         .addEventListener('click', closeDialog)
     ;
 
-    document.querySelectorAll('.dialog').forEach(dialog => makeDraggable(dialog));
+    document.querySelectorAll('.dialog').forEach(dialog => {
+        makeDraggable(dialog);
+    });
 }
 
 
