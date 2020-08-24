@@ -122,7 +122,7 @@ function renderInterval(cells, { startIndex, endIndex, id, text, color, classNam
 }
 
 
-function appendInterval(parent, { id, color, className, width, text = 'NewEvent' }) {
+function appendInterval(parent, { id, color, className='', width, text = 'NewEvent' }) {
     if (!parent) {
         return;
     }

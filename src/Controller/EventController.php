@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\EventRepository;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,7 +25,7 @@ class EventController extends AbstractController
      * @Route("/{id}", methods={"GET"})
      */
     public function show($id, EventRepository $eventRepository) {
-        return $this->json(['data' => $eventRepository->find($id) ]);
+        return $this->json(['data' => $eventRepository->find($id)]);
     }
 
     /**
@@ -39,14 +40,20 @@ class EventController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
-        if ($data['title']) {
+        if (array_key_exists('title', $data)) {
             $event->setTitle($data['title']);
         }
-        if ($data['description']) {
+        if (array_key_exists('description', $data)) {
             $event->setDescription($data['description']);
         }
-        if ($data['color']) {
+        if (array_key_exists('color', $data)) {
             $event->setColor($data['color']);
+        }
+        if (array_key_exists('startDate', $data)) {
+            $event->setStartDate(new DateTime($data['startDate']));
+        }
+        if (array_key_exists('endDate', $data)) {
+            $event->setEndDate(new DateTime($data['endDate']));
         }
 
         $this->getDoctrine()->getManager()->flush();

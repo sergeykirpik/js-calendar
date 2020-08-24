@@ -16,7 +16,7 @@ const apiService = new ApiService(eventEmitter);
 
 eventEmitter.subscribe('dialog.close', () => deselectAllIntervals());
 
-eventEmitter.subscribe('api.patch.event', updateInterval);
+eventEmitter.subscribe('api.patch.event', () => apiService.getAllEvents().then(renderCalendar));
 
 const dialog = new Dialog({
     element: document.querySelector('.dialog'),
