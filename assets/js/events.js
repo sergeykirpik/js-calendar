@@ -1,6 +1,7 @@
 import {
     shadeCalendarCell,
     selectInterval,
+    deselectAllIntervals,
 } from './calendar';
 
 import {
@@ -31,7 +32,6 @@ function setupEvents() {
      * @param {MouseEvent} e
      */
     const stopDragging = function(e) {
-        console.log('stopDragging');
         document.removeEventListener('mousemove', startDragging);
         document.removeEventListener('mouseup', stopDragging);
 
@@ -56,7 +56,6 @@ function setupEvents() {
      * @param {MouseEvent} e
      */
     const stopResizing = function(e) {
-        console.log('stopResizing');
         document.removeEventListener('mousemove', startResizing);
         document.removeEventListener('mouseup', stopResizing);
         lastMouseDownEvent = null;
@@ -66,16 +65,13 @@ function setupEvents() {
      * @param {MouseEvent} e
      */
     const mouseDownHandler = function(e) {
-        console.log('mousedown');
         if (e.target.classList.contains('calendar-interval')) {
             const rect = e.target.getBoundingClientRect();
             lastMouseDownEvent = e;
             if (rect.width - e.offsetX < RESIZE_OFFSET) {
-                console.log('resizing');
                 document.addEventListener('mousemove', startResizing);
                 document.addEventListener('mouseup', stopResizing);
             } else {
-                console.log('dragging');
                 document.addEventListener('mousemove', startDragging);
                 document.addEventListener('mouseup', stopDragging);
             }
@@ -88,9 +84,11 @@ function setupEvents() {
             return;
         }
         if (e.target.classList.contains('calendar-interval')) {
-            console.log('click');
             selectInterval(e.target);
             openDialog(e.target.dataset.id);
+        } else if (e.target.classList.contains('calendar-cell')) {
+            deselectAllIntervals();
+            closeDialog();
         }
     });
 
@@ -115,10 +113,7 @@ function setupEvents() {
         const calendar = document.querySelector('.calendar');
 
         if (calendar && calendarHeading) {
-
-            console.log('resize');
             const rect = calendar.getBoundingClientRect();
-            console.log(rect);
             calendarHeading.style.left = rect.left + 'px';
             calendarHeading.style.width = rect.width-10 + 'px';
         }

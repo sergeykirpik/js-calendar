@@ -78,6 +78,8 @@ body {
     color: #333;
     text-align: left;
     margin-top: 2px;
+    transition: transform;
+    transition-duration: 0.5s;
 }
 
 .calendar-interval.selected {
@@ -121,4 +123,8 @@ body {
 
 .v-center {
     align-items: center;
+}
+
+.transparent {
+    opacity: 0;
 }

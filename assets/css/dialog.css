@@ -3,13 +3,16 @@
     top: 20px;
     left: 20px;
     position: fixed;
-    width: 300px;
+    width: 320px;
     max-height: 90vh;
     z-index: 600;
     border: 2px solid #eee;
     overflow: hidden;
     overflow-y: scroll;
     box-shadow: 0 0 20px rgba(0, 0, 0, .8);
+
+    transition: opacity;
+    transition-duration: 0.3s;
 }
 
 .dialog-container {
@@ -66,3 +69,27 @@
 .status {
     float: right;
 }
+
+.btn {
+    background-color:#fff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    background-color: #ccc;
+}
+
+.btn-primary:hover {
+    background-color: #0058b6;
+    color: #fff;
+}
+
+.btn-primary {
+    background-color:#007bff;
+    color: #fff;
+}
+
