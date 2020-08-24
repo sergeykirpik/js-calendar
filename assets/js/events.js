@@ -4,14 +4,13 @@ import {
     deselectAllIntervals,
 } from './calendar';
 
-import {
-    openDialog,
-    closeDialog,
-} from './dialog';
-
 const RESIZE_OFFSET = 10;
 
-function setupEvents() {
+/**
+ *
+ * @param {Element} dialog
+ */
+function setupEvents(dialog) {
     let lastMouseDownEvent = null;
     let draggingDetected = false;
 
@@ -85,10 +84,10 @@ function setupEvents() {
         }
         if (e.target.classList.contains('calendar-interval')) {
             selectInterval(e.target);
-            openDialog(e.target.dataset.id);
+            dialog.openDialog(e.target.dataset.id);
         } else if (e.target.classList.contains('calendar-cell')) {
             deselectAllIntervals();
-            closeDialog();
+            dialog.closeDialog();
         }
     });
 
