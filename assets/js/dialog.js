@@ -1,15 +1,9 @@
 import { setElementColor } from './color_utils';
-
-import { toLocalISOTime, toLocalISODate, toLocalISOTimeWithoutSeconds, padWithZero } from './date_utils';
-import { deselectAllIntervals } from './calendar';
-
-import { randomColor, randomInt } from './random';
-
+import { toLocalISOTime, toLocalISODate, toLocalISOTimeWithoutSeconds } from './date_utils';
 import EventEmitter from './event-emitter';
 
-function die(message) {
-    throw new Error(message);
-}
+import { die } from './utils';
+import ApiService from './api';
 
 function makeDraggable(dialog) {
 
@@ -39,17 +33,20 @@ class Dialog {
     /**
      *
      * @param {Element} dialog
-     * @param {EventEmitter} eventEmitter
+     * @param {EventEmitter} emitter
+     * @param {ApiService} api
      */
-    constructor(dialog, eventEmitter) {
-        this.eventEmitter = eventEmitter || new EventEmitter();
-        this.dialog = dialog || die('dialog parameter is required');
+    constructor({ element, emitter, api }) {
+        this.eventEmitter = emitter || new EventEmitter();
+        this.dialog = element || die('element parameter is required');
+        this.api = api || die('api is required');
 
         this.hideOnTransitionComplete = this.hideOnTransitionComplete.bind(this);
         this.openDialog = this.openDialog.bind(this);
         this.closeDialog = this.closeDialog.bind(this);
         this.handleColorChange = this.handleColorChange.bind(this);
         this.submitHandler = this.submitHandler.bind(this);
+        this.fillDialog = this.fillDialog.bind(this);
 
         this.setupDialogEvents();
     }
@@ -83,11 +80,7 @@ class Dialog {
             dialog.classList.remove('hidden');
             dialog.classList.remove('transparent');
         }
-        fetch('/api/events/'+id)
-            .then(response => response.json())
-            .then(data => {
-                this.fillDialog(data.data);
-            });
+        this.api.getEvent(id).then(this.fillDialog);
         dialog.querySelector('.status').textContent = `[Loading: id: ${ id }... ]`;
     }
 
@@ -121,18 +114,8 @@ class Dialog {
             endDate: new Date(formData.get('endDate') + 'T' + formData.get('endTime')),
             color: formData.get('color'),
         };
-        const eventId = formData.get('eventId');
 
-        fetch(`/api/events/${ eventId }`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            updateInterval(data.data);
-        });
+        this.api.patchEvent(formData.get('eventId'), data);
 
         this.closeDialog();
     }
@@ -153,4 +136,4 @@ class Dialog {
 }
 
 
-export { Dialog };
+export default Dialog;

@@ -158,5 +158,5 @@ function getIndex(date) {
 
 export {
     deselectAllIntervals, selectInterval, unshadeAllCalendarCells, shadeCalendarCell,
-    updateCalendarCells, renderCalendar
+    updateCalendarCells, updateInterval, renderCalendar
 };
