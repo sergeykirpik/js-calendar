@@ -4,7 +4,6 @@ import {
     addDays,
     isToday,
     toLocalISODate,
-    toLocalISOTime,
     diffInDays,
 } from './date_utils';
 
@@ -107,7 +106,7 @@ function inRange(val, min, max) {
     return val >= min && val <= max;
 }
 
-function fixElementPosition(thisEl) {
+function fixIntervalPosition(thisEl) {
     thisEl.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
     const calendarRow = thisEl.parentElement.parentElement.parentElement;
     const allIntevalsInRow = calendarRow.querySelectorAll('.calendar-interval');
@@ -141,7 +140,7 @@ function fixAllIntervalsInRow(thisEl) {
     const calendarRow = thisEl.parentElement.parentElement.parentElement;
     const allIntevalsInRow = calendarRow.querySelectorAll('.calendar-interval');
 
-    allIntevalsInRow.forEach(fixElementPosition);
+    allIntevalsInRow.forEach(fixIntervalPosition);
 }
 
 function renderCalendar(data) {
@@ -164,13 +163,15 @@ function renderCalendar(data) {
         el.style.marginTop = CALENDAR_INTERVAL_VGAP+'px';
         el.textContent = data[i]['title'];
         el.dataset.id = data[i]['id'];
+        el.dataset.startDate = toLocalISODate(data[i]['startDate']);
+        el.dataset.endDate = toLocalISODate(data[i]['endDate']);
         setElementColor(el, data[i]['color']);
 
         el.style.width = cell.offsetWidth + cell.offsetWidth * (curr.endIdx - curr.startIdx) - 5 + 'px';
 
         cells[curr.startIdx].querySelector('.events-container').appendChild(el);
 
-        fixElementPosition(el);
+        fixIntervalPosition(el);
 
     }
 }
@@ -191,5 +192,5 @@ function cellIndexFromJson(jsonDate) {
 
 export {
     deselectAllIntervals, selectInterval, unshadeAllCalendarCells, shadeCalendarCell,
-    updateCalendarCells, updateInterval, renderCalendar, fixElementPosition, fixAllIntervalsInRow
+    updateCalendarCells, updateInterval, renderCalendar, fixAllIntervalsInRow
 };

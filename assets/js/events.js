@@ -5,14 +5,16 @@ import {
     fixAllIntervalsInRow,
 } from './calendar';
 import Dialog from './dialog';
+import EventEmitter from './event-emitter';
 
 const RESIZE_OFFSET = 10;
 
 /**
  *
  * @param {Dialog} dialog
+ * @param {EventEmitter} eventEmitter
  */
-function setupEvents(dialog) {
+function setupEvents(dialog, eventEmitter) {
     let lastMouseDownEvent = null;
     let draggingDetected = false;
     let destinationParent = null;
@@ -29,6 +31,8 @@ function setupEvents(dialog) {
             }
             target.style.left = e.clientX-offsetX+'px';
             target.style.top  = e.clientY-offsetY-(parseInt(target.style.marginTop, 10) || 0)+'px';
+
+            eventEmitter.emit('interval.dragging');
         }
     }
 
@@ -45,10 +49,16 @@ function setupEvents(dialog) {
         ;
 
         if (draggingDetected) {
-            destinationParent.appendChild(lastMouseDownEvent.target);
-            lastMouseDownEvent.target.classList.remove('dragging');
-            fixAllIntervalsInRow(lastMouseDownEvent.target);
+            const el = lastMouseDownEvent.target;
+            destinationParent.appendChild(el);
+            el.classList.remove('dragging');
+            fixAllIntervalsInRow(el);
             lastMouseDownEvent = null;
+            const parentCell = destinationParent.parentElement;
+            const timeDiff = new Date(el.dataset.endDate).getTime() - new Date(el.dataset.startDate).getTime();
+            el.dataset.startDate = parentCell.dataset.date;
+            el.dataset.endDate = new Date(new Date(el.dataset.startDate).getTime() + timeDiff);
+            eventEmitter.emit('interval.dragging.stop', el);
         }
     }
 
