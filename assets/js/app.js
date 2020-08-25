@@ -1,7 +1,6 @@
 import '../css/app.css';
 import '../css/dialog.css';
 
-
 import EventEmitter from './event-emitter';
 
 import { setupEvents } from './events';
