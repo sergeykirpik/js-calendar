@@ -55,7 +55,7 @@ body {
 
 .calendar-cell {
     background-color: white;
-    min-height: calc(100vh / 7);
+    /* min-height: calc(100vh / 7); */
     text-align: right;
     padding-top: 5px;
     padding-right: 5px;

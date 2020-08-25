@@ -142,17 +142,96 @@ function appendInterval(parent, { id, color, className='', width, text = 'NewEve
     parent.appendChild(el);
 }
 
-function renderCalendar(data) {
+function _renderCalendar(data) {
     const cells = document.querySelectorAll('.calendar-cell');
     data.forEach(e => placeEvent(cells, e));
+}
+
+function colIndexFromJson(jsonDate) {
+    return cellIndexFromJson() % 7;
+}
+
+function rowIndexFromJson(jsonDate) {
+    return Math.floor(cellIndexFromJson(jsonDate) / 7);
+}
+
+function indexesFromJson(data) {
+    return {
+        startRow: rowIndexFromJson(data['startDate']),
+        endRow: rowIndexFromJson(data['endDate']),
+        startCol: colIndexFromJson(data['startDate']),
+        endCol: colIndexFromJson(data['endDate']),
+    };
+}
+
+function renderCalendar(data) {
+    const cells = document.querySelectorAll('.calendar-cell');
+    const rect = cells[0].getBoundingClientRect();
+
+    for (let i = 0; i < data.length-1; i++) {
+
+        const el = document.createElement('div');
+        el.className = 'calendar-interval ';
+        el.style.width = rect.width + 'px';
+        // el.style.top = rect.top + 'px';
+        el.textContent = data[i]['title'];
+        el.dataset.id = data[i]['id'];
+
+        // if (el.classList.contains('tail')) {
+        //     el.style.width = width + 200 + 'px';
+        //     el.style.marginLeft = "-200px";
+        //     el.style.paddingLeft = "200px";
+        // }
+        if (color) {
+            setElementColor(el, data[i]['color']);
+        }
+        el.style.position = 'relative';
+
+        const startIdx = cellIndexFromJson(data[i]['startDate']);
+        const endIdx = cellIndexFromJson(data[i]['endDate']);
+
+        const curr = indexesFromJson(data[i]);
+
+        //const left = rect.left + rect.width  * colIdx;
+        //const top  = rect.top  + rect.height * rowIdx;
+
+        //el.style.left = left + 'px';
+        //el.style.top  = top  + 'px';
+        el.style.width = rect.width + rect.width * (endIdx - startIdx) + 'px';
+
+        if (curr.startRow > 0) {
+            let marginTop = 0;
+            let bottom = 0;
+            for (let j = 1; j <= i; j++) {
+                const prev = indexesFromJson(data[i-j]);
+                if (prev.startCol < curr.startCol && prev.endCol >= curr.startCol) {
+                    const prevEl = document.querySelector(`[data-id="${data[i-j]['id']}"]`);
+                    const prevRect = prevEl.getBoundingClientRect();
+                    if (prevRect.bottom > bottom) {
+                        bottom = prevRect.bottom;
+                        marginTop = Math.max(marginTop, prevEl.offsetTop + prevEl.offsetHeight);
+                    }
+                }
+            }
+            el.style.marginTop = marginTop + 'px';
+        }
+
+        if (cells[startIdx]) {
+            cells[startIdx].appendChild(el);
+        }
+    }
 }
 
 /**
  *
  * @param {Date} date
  */
-function getIndex(date) {
+function cellIndexFromDate(date) {
     return diffInDays(minDate(), date);
+}
+
+function cellIndexFromJson(jsonDate) {
+    return cellIndexFromDate(new Date(toLocalISODate(jsonDate)));
 }
 
 
