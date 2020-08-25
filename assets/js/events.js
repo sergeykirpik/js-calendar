@@ -2,17 +2,20 @@ import {
     shadeCalendarCell,
     selectInterval,
     deselectAllIntervals,
+    fixAllIntervalsInRow,
 } from './calendar';
+import Dialog from './dialog';
 
 const RESIZE_OFFSET = 10;
 
 /**
  *
- * @param {Element} dialog
+ * @param {Dialog} dialog
  */
 function setupEvents(dialog) {
     let lastMouseDownEvent = null;
     let draggingDetected = false;
+    let destinationParent = null;
 
     /**
      *
@@ -21,9 +24,11 @@ function setupEvents(dialog) {
     const startDragging = function(e) {
         if (lastMouseDownEvent) {
             const { target, offsetX, offsetY } = lastMouseDownEvent;
-            target.style.position = 'absolute';
+            if (!target.classList.contains('dragging')) {
+                target.classList.add('dragging');
+            }
             target.style.left = e.clientX-offsetX+'px';
-            target.style.top  = e.clientY-offsetY+'px';
+            target.style.top  = e.clientY-offsetY-(parseInt(target.style.marginTop, 10) || 0)+'px';
         }
     }
 
@@ -38,7 +43,13 @@ function setupEvents(dialog) {
             e.clientX !== lastMouseDownEvent.clientX
             || e.clientY !== lastMouseDownEvent.clientY
         ;
-        lastMouseDownEvent = null;
+
+        if (draggingDetected) {
+            destinationParent.appendChild(lastMouseDownEvent.target);
+            lastMouseDownEvent.target.classList.remove('dragging');
+            fixAllIntervalsInRow(lastMouseDownEvent.target);
+            lastMouseDownEvent = null;
+        }
     }
 
     /**
@@ -103,6 +114,7 @@ function setupEvents(dialog) {
         document.elementsFromPoint(e.clientX, e.clientY).forEach(el => {
             if (el.classList.contains('calendar-cell')) {
                 shadeCalendarCell(el);
+                destinationParent = el.querySelector('.events-container');
             }
         });
     });

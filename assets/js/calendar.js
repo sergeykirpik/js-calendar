@@ -12,6 +12,7 @@ import {
     setElementColor,
 } from './color_utils';
 
+const CALENDAR_INTERVAL_VGAP = 2;
 
 function updateInterval(data) {
     const el = document.querySelector(`[data-id="${data.id}"]`);
@@ -83,72 +84,8 @@ function maxDate() {
     return new Date('2020-09-06');
 }
 
-function placeEvent(cells, { id, color, startDate, endDate, title }) {
-
-    let startIndex = getIndex(new Date(toLocalISODate(startDate)));
-    let endIndex = getIndex(new Date(toLocalISODate(endDate)));
-    // let maxIndex = getIndex(maxDate());
-
-    const text = toLocalISOTime(startDate).slice(0, 5) + ' ' + title;
-
-    renderInterval(cells, { id, startIndex, endIndex, text, color });
-    // TODO: make interval wrap
-
-    // startIndex += 7 - startIndex % 6;
-    // while (startIndex < endIndex && startIndex < maxIndex) {
-    //     renderInterval(cells, {id, startIndex, endIndex, id, title, color, className: 'green tail' });
-    //     startIndex += 7;
-    // }
-}
-
-
-function renderInterval(cells, { startIndex, endIndex, id, text, color, className = '' }) {
-    const cellWidth = cells[0].getBoundingClientRect().width;
-    const maxIndex = getIndex(maxDate());
-
-    appendInterval(cells[startIndex], { className, width: cellWidth * (endIndex - startIndex + 1), id, color, text });
-    for (let i = startIndex + 1; i <= endIndex; i++) {
-        if (i % 7 === 0 || i > maxIndex) {
-            break;
-        }
-        const hiddenCellsToAppend = cells[i - 1].childElementCount - cells[i].childElementCount;
-        if (i % 6 === 0) {
-            break;
-        }
-        for (let j = 0; j < hiddenCellsToAppend; j++) {
-            appendInterval(cells[i], { className: 'hidden', cellWidth, id });
-        }
-    }
-}
-
-
-function appendInterval(parent, { id, color, className='', width, text = 'NewEvent' }) {
-    if (!parent) {
-        return;
-    }
-    const el = document.createElement('div');
-    el.className = 'calendar-interval ' + className;
-    el.style.width = width + 'px';
-    el.textContent = text;
-    el.dataset.id = id;
-    if (el.classList.contains('tail')) {
-        el.style.width = width + 200 + 'px';
-        el.style.marginLeft = "-200px";
-        el.style.paddingLeft = "200px";
-    }
-    if (color) {
-        setElementColor(el, color);
-    }
-    parent.appendChild(el);
-}
-
-function _renderCalendar(data) {
-    const cells = document.querySelectorAll('.calendar-cell');
-    data.forEach(e => placeEvent(cells, e));
-}
-
 function colIndexFromJson(jsonDate) {
-    return cellIndexFromJson() % 7;
+    return cellIndexFromJson(jsonDate) % 7;
 }
 
 function rowIndexFromJson(jsonDate) {
@@ -161,66 +98,83 @@ function indexesFromJson(data) {
         endRow: rowIndexFromJson(data['endDate']),
         startCol: colIndexFromJson(data['startDate']),
         endCol: colIndexFromJson(data['endDate']),
+        startIdx: cellIndexFromJson(data['startDate']),
+        endIdx: cellIndexFromJson(data['endDate'])
     };
 }
 
-function renderCalendar(data) {
-    const cells = document.querySelectorAll('.calendar-cell');
-    const rect = cells[0].getBoundingClientRect();
+function inRange(val, min, max) {
+    return val >= min && val <= max;
+}
 
-    for (let i = 0; i < data.length-1; i++) {
+function fixElementPosition(thisEl) {
+    thisEl.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
+    const calendarRow = thisEl.parentElement.parentElement.parentElement;
+    const allIntevalsInRow = calendarRow.querySelectorAll('.calendar-interval');
 
-        const el = document.createElement('div');
-        el.className = 'calendar-interval ';
-        el.style.width = rect.width + 'px';
-        // el.style.top = rect.top + 'px';
-        el.textContent = data[i]['title'];
-        el.dataset.id = data[i]['id'];
+    for (let otherEl of allIntevalsInRow) {
 
-        // if (el.classList.contains('tail')) {
-        //     el.style.width = width + 200 + 'px';
-        //     el.style.marginLeft = "-200px";
-        //     el.style.paddingLeft = "200px";
-        // }
-        if (color) {
-            setElementColor(el, data[i]['color']);
+        if (thisEl === otherEl) {
+            break;
         }
-        el.style.position = 'relative';
 
-        const startIdx = cellIndexFromJson(data[i]['startDate']);
-        const endIdx = cellIndexFromJson(data[i]['endDate']);
+        let thisRect = thisEl.getBoundingClientRect();
+        let otherRect = otherEl.getBoundingClientRect();
 
-        const curr = indexesFromJson(data[i]);
-
-        //const left = rect.left + rect.width  * colIdx;
-        //const top  = rect.top  + rect.height * rowIdx;
-
-        //el.style.left = left + 'px';
-        //el.style.top  = top  + 'px';
-        el.style.width = rect.width + rect.width * (endIdx - startIdx) + 'px';
-
-        if (curr.startRow > 0) {
-            let marginTop = 0;
-            let bottom = 0;
-            for (let j = 1; j <= i; j++) {
-                const prev = indexesFromJson(data[i-j]);
-                if (prev.startCol < curr.startCol && prev.endCol >= curr.startCol) {
-                    const prevEl = document.querySelector(`[data-id="${data[i-j]['id']}"]`);
-                    const prevRect = prevEl.getBoundingClientRect();
-                    if (prevRect.bottom > bottom) {
-                        bottom = prevRect.bottom;
-                        marginTop = Math.max(marginTop, prevEl.offsetTop + prevEl.offsetHeight);
-                    }
+        if (thisEl !== otherEl) {
+            if (otherRect.y + otherRect.height > thisRect.y) {
+                if (inRange(otherRect.left, thisRect.left, thisRect.right)
+                    || inRange(otherRect.right, thisRect.left, thisRect.right)
+                    || inRange(thisRect.left, otherRect.left, otherRect.right)
+                    || inRange(thisRect.right, otherRect.left, otherRect.right)
+                ) {
+                    // debugger;
+                    thisEl.style.marginTop = (parseInt(thisEl.style.marginTop, 10) || 0) +
+                        otherRect.y + otherRect.height - thisRect.y + CALENDAR_INTERVAL_VGAP + 'px';
                 }
             }
-            el.style.marginTop = marginTop + 'px';
-        }
-
-        if (cells[startIdx]) {
-            cells[startIdx].appendChild(el);
         }
     }
 }
+
+function fixAllIntervalsInRow(thisEl) {
+    const calendarRow = thisEl.parentElement.parentElement.parentElement;
+    const allIntevalsInRow = calendarRow.querySelectorAll('.calendar-interval');
+
+    allIntevalsInRow.forEach(fixElementPosition);
+}
+
+function renderCalendar(data) {
+
+    document.querySelectorAll('.calendar-interval').forEach(el => el.remove());
+
+    const cells = document.querySelectorAll('.calendar-cell');
+    const cell = cells[0];
+
+    for (let i = 0; i < data.length - 1; i++) {
+        const curr = indexesFromJson(data[i]);
+
+        if (curr.startIdx > cellIndexFromDate(maxDate())) {
+            break;
+        }
+
+        const el = document.createElement('div');
+        el.className = 'calendar-interval ';
+        el.style.width = cell.offsetWidth - 1 + 'px';
+        el.style.marginTop = CALENDAR_INTERVAL_VGAP+'px';
+        el.textContent = data[i]['title'];
+        el.dataset.id = data[i]['id'];
+        setElementColor(el, data[i]['color']);
+
+        el.style.width = cell.offsetWidth + cell.offsetWidth * (curr.endIdx - curr.startIdx) - 5 + 'px';
+
+        cells[curr.startIdx].querySelector('.events-container').appendChild(el);
+
+        fixElementPosition(el);
+
+    }
+}
+
 
 /**
  *
@@ -237,5 +191,5 @@ function cellIndexFromJson(jsonDate) {
 
 export {
     deselectAllIntervals, selectInterval, unshadeAllCalendarCells, shadeCalendarCell,
-    updateCalendarCells, updateInterval, renderCalendar
+    updateCalendarCells, updateInterval, renderCalendar, fixElementPosition, fixAllIntervalsInRow
 };

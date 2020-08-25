@@ -55,7 +55,7 @@ body {
 
 .calendar-cell {
     background-color: white;
-    /* min-height: calc(100vh / 7); */
+    min-height: calc(100vh / 7);
     text-align: right;
     padding-top: 5px;
     padding-right: 5px;
@@ -66,20 +66,36 @@ body {
 }
 
 .calendar-cell.shaded {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.calendar-row:nth-child(odd) .calendar-cell.shaded{
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.calendar-cell .events-container {
+    position: relative;
+    border-top: 1px solid transparent;
+    overflow: visible;
+    width: 0;
 }
 
 .calendar-interval {
     border-radius: 5px;
     border: 1px solid #bbb;
-    position: relative;
     z-index: 100;
     padding: 5px 4px;
     color: #333;
     text-align: left;
-    margin-top: 2px;
+    /* margin-top: 2px; */
+    margin-left: 2px;
     transition: transform;
     transition-duration: 0.5s;
+}
+
+.calendar-interval.dragging {
+    position: fixed;
+    margin: 0;
 }
 
 .calendar-interval.selected {
@@ -106,10 +122,9 @@ body {
 
 .day-label.today {
     color: #fff;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.8);
     font-weight: bold;
-    padding: 5px;
-    border-radius: 50%;
+    padding: 2px;
     margin-right: -5px;
 }
 
