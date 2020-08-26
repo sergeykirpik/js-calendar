@@ -32,6 +32,11 @@ class Invite
      */
     private $expires;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $redeemed;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,6 +74,18 @@ class Invite
     public function setExpires(\DateTimeInterface $expires): self
     {
         $this->expires = $expires;
+
+        return $this;
+    }
+
+    public function getRedeemed(): ?bool
+    {
+        return $this->redeemed;
+    }
+
+    public function setRedeemed(bool $redeemed): self
+    {
+        $this->redeemed = $redeemed;
 
         return $this;
     }
