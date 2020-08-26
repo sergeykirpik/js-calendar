@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @IsGranted("ROLE_ADMIN")
  */
-class InviteController extends AbstractController
+class InvitationController extends AbstractController
 {
     /**
      * @Route("/invite", name="app_invite")
@@ -23,6 +23,7 @@ class InviteController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             $registrationService->sendInvite($request->get('email'));
+
             return new Response('<body>Success!</body>');
         }
         return $this->render('invite/new.html.twig');

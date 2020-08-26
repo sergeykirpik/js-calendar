@@ -2,13 +2,17 @@
 
 {% block body %}
     <div class="container">
-        <h3>Send new invitation</h3>
-        <form action="" method="post">
-            <div class="form-group mb2">
-                <label for="email">Email:</label>
-                <input type="email" name="email" id="email">
+        <div class="dialog">
+            <h2>Send new invitation</h2>
+            <div class="dialog-container">
+                <form action="" method="post">
+                    <div class="form-group mb2">
+                        <label for="email">Email:</label>
+                        <input type="email" name="email" id="email">
+                    </div>
+                    <input class="btn btn-primary" type="submit" value="Invite">
+                </form>
             </div>
-            <input class="btn btn-primary" type="submit" value="Invite">
-        </form>
+        </div>
     </div>
 {% endblock %}

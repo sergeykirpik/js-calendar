@@ -157,6 +157,10 @@ function renderCalendar(data) {
             break;
         }
 
+        if (curr.startIdx < cellIndexFromDate(minDate())) {
+            continue;
+        }
+
         const el = document.createElement('div');
         el.className = 'calendar-interval ';
         el.style.width = cell.offsetWidth - 1 + 'px';

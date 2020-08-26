@@ -143,3 +143,8 @@ body {
 .transparent {
     opacity: 0;
 }
+
+.t-center {
+    text-align: center;
+}
+

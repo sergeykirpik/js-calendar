@@ -1,7 +1,7 @@
 .dialog {
     background-color: #eee;
-    top: 20px;
-    left: 20px;
+    top: 80px;
+    left: 80px;
     position: fixed;
     width: 320px;
     max-height: 90vh;
@@ -13,6 +13,8 @@
 
     transition: opacity;
     transition-duration: 0.3s;
+
+    border-radius: 5px;
 }
 
 .dialog-container {
@@ -48,6 +50,7 @@
 
 .form-group label {
     margin-bottom: 5px;
+    font-size: 0.9em;
 }
 
 .mb1 {

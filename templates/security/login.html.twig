@@ -7,22 +7,26 @@
         <div>{{ error.message }}</div>
     {% endif %}
 
-    <div class="container">
+    <div class="container center-content">
         <h1>Welcome to Calendar Events!</h1>
-        <p>Please login</p>
-        <form method="post">
-            <div class="form-group mb1">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value={{ last_username }}>
-            </div>
-            <div class="form-group mb2">
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password">
-            </div>
-            <input type="hidden" name="_csrf_token" value={{ csrf_token('authenticate') }}>
+        <div class="dialog">
+            <h2>Please login</h2>
+            <div class="dialog-container">
+                <form method="post">
+                    <div class="form-group mb1">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value={{ last_username }}>
+                    </div>
+                    <div class="form-group mb2">
+                        <label for="password">Password:</label>
+                        <input type="password" name="password" id="password">
+                    </div>
+                    <input type="hidden" name="_csrf_token" value={{ csrf_token('authenticate') }}>
 
-            <input class="btn btn-primary" type="submit" value="Login">
-        </form>
+                    <input class="btn btn-primary" type="submit" value="Login">
+                </form>
+            </div>
+        </div>
     </div>
 
 {% endblock %}

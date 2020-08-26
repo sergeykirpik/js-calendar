@@ -36,7 +36,7 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
         $faker = $this->faker;
         $statuses = ['new', 'in-progress', 'done', 'canceled'];
 
-        $start = $faker->dateTimeBetween('-25 days', '+25 days');
+        $start = $faker->dateTimeBetween('-50 days', '+50 days');
         $finish = $start->getTimestamp() + random_int(3600, 100000);
         $finish = new DateTime('@'. $finish);
 
@@ -54,7 +54,7 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
 
     public function load(ObjectManager $manager)
     {
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 150; $i++) {
             $manager->persist($this->randomEvent());
         }
         $manager->flush();
