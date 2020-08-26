@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Registration!{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Welcome to Events Calendar!</h1>
+        <p>Your email:
+            {{ email }}</p>
+        <form action="" method="post">
+            <div class="form-group mb1">
+                <label for="password">Enter your password:</label>
+                <input type="password" name="password" id="password">
+            </div>
+            <div class="form-group mb2">
+                <label for="verify-password">Verify your password:</label>
+                <input type="password" name="password2" id="verify-password">
+            </div>
+            <button class="btn btn-primary" type="submit">Register</button>
+        </form>
+    </div>
+{% endblock %}

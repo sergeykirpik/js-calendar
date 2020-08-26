@@ -1,11 +1,14 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <form action="" method="post">
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email">
-        </div>
-        <input type="submit" value="Invite">
-    </form>
+    <div class="container">
+        <h3>Send new invitation</h3>
+        <form action="" method="post">
+            <div class="form-group mb2">
+                <label for="email">Email:</label>
+                <input type="email" name="email" id="email">
+            </div>
+            <input class="btn btn-primary" type="submit" value="Invite">
+        </form>
+    </div>
 {% endblock %}
