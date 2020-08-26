@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @IsGranted("ROLE_ADMIN")
@@ -22,10 +23,9 @@ class InviteController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             $invitationService->sendInvite($request->get('email'));
-
-
+            return new Response('<body>Success!</body>');
         }
-        return $this->render('invite/index.html.twig');
+        return $this->render('invite/new.html.twig');
     }
 
 }
