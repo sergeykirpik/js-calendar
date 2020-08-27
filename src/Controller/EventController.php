@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Event;
 use App\Repository\EventRepository;
 use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,6 +21,28 @@ class EventController extends AbstractController
     public function index(EventRepository $eventRepository)
     {
         return $this->json([ 'data' => $eventRepository->findBy([], ['startDate' => 'ASC']) ]);
+    }
+
+    /**
+     * @Route("/", methods={"POST"})
+     */
+    public function newAction(Request $request, EntityManagerInterface $em)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $event = new Event();
+        $event->setAuthor($this->getUser()->getEmail());
+        $event->setTitle($data['title']);
+        $event->setDescription($data['description']);
+        $event->setStartDate(new DateTime($data['startDate']));
+        $event->setEndDate(new DateTime($data['endDate']));
+        $event->setColor($data['color']);
+        $event->setStatus('new');
+
+        $em->persist($event);
+        $em->flush();
+
+        return $this->json([ 'data' => $event ]);
     }
 
     /**

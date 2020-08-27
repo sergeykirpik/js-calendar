@@ -122,3 +122,11 @@
     transform: rotate(90deg);
 }
 
+.d-flex {
+    display: flex;
+}
+
+.expander {
+    flex: 1;
+}
+

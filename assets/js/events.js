@@ -3,6 +3,7 @@ import {
     selectInterval,
     deselectAllIntervals,
     fixAllIntervalsInRow,
+    getParentRow,
 } from './calendar';
 import Dialog from './dialog';
 import EventEmitter from './event-emitter';
@@ -52,7 +53,7 @@ function setupEvents(dialog, eventEmitter) {
             const el = lastMouseDownEvent.target;
             destinationParent.appendChild(el);
             el.classList.remove('dragging');
-            fixAllIntervalsInRow(el);
+            fixAllIntervalsInRow(getParentRow(el));
             lastMouseDownEvent = null;
             const parentCell = destinationParent.parentElement;
             const timeDiff = new Date(el.dataset.endDate).getTime() - new Date(el.dataset.startDate).getTime();
@@ -105,10 +106,10 @@ function setupEvents(dialog, eventEmitter) {
         }
         if (e.target.classList.contains('calendar-interval')) {
             selectInterval(e.target);
-            dialog.openDialog(e.target.dataset.id);
+            dialog.openDialog({ id: e.target.dataset.id });
         }
         else if (e.target.classList.contains('calendar-cell')) {
-            dialog.openDialog(null);
+            dialog.openDialog({ startDate: new Date(e.target.dataset.date) });
         }
         else if (e.target.classList.contains('calendar-cell')) {
             deselectAllIntervals();

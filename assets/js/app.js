@@ -5,7 +5,7 @@ import EventEmitter from './event-emitter';
 
 import { setupEvents } from './events';
 
-import { updateCalendarCells, renderCalendar, deselectAllIntervals, updateInterval } from './calendar';
+import { updateCalendarCells, renderCalendar, deselectAllIntervals, updateInterval, removeInterval, appendInterval } from './calendar';
 import Dialog from './dialog';
 import ApiService from './api';
 
@@ -22,6 +22,10 @@ eventEmitter.subscribe('interval.dragging.stop', el => {
 });
 
 eventEmitter.subscribe('api.patch.event', updateInterval);
+
+eventEmitter.subscribe('api.delete.event', removeInterval);
+
+eventEmitter.subscribe('api.post.event', appendInterval);
 
 const dialog = new Dialog({
     element: document.querySelector('.dialog'),
