@@ -1,33 +1,9 @@
 import { setElementColor } from './color_utils';
-import { toLocalISOTime, toLocalISODate, toLocalISOTimeWithoutSeconds } from './date_utils';
+import { toLocalISODate, toLocalISOTimeWithoutSeconds } from './date_utils';
 import EventEmitter from './event-emitter';
 
-import { die } from './utils';
+import { die, makeDraggable } from './utils';
 import ApiService from './api';
-
-function makeDraggable(dialog) {
-
-    let lastMouseDownEvent = null;
-
-    const drag = function (e) {
-        dialog.style.left = e.clientX - lastMouseDownEvent.offsetX + 'px';
-        dialog.style.top = e.clientY - lastMouseDownEvent.offsetY + 'px';
-    }
-
-    const dragStop = function () {
-        document.removeEventListener('mousemove', drag);
-        document.removeEventListener('mouseup', dragStop);
-    }
-
-    dialog.addEventListener('mousedown', function (e) {
-        if (e.target.classList.contains('drag-handle')) {
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', dragStop);
-            lastMouseDownEvent = e;
-        }
-    });
-}
-
 
 class Dialog {
     /**
@@ -59,8 +35,6 @@ class Dialog {
     }
 
     fillDialog(data) {
-        console.log(data);
-
         this.dialog.querySelector('.status').textContent = `[ ${data['status']} ]`;
         const form = this.dialog.querySelector('form');
         form.eventId.value = data['id'];
@@ -103,7 +77,6 @@ class Dialog {
 
     hideOnTransitionComplete(e) {
         if (e.target.classList.contains('dialog')) {
-            console.log('hide');
             e.target.removeEventListener('transitionend', this.hideOnTransitionComplete);
             e.target.classList.add('hidden');
         }
@@ -113,7 +86,6 @@ class Dialog {
         this.currentId = null;
         const dialog = this.dialog;
         if (dialog && !dialog.classList.contains('transparent')) {
-            console.log('close');
             dialog.classList.add('transparent');
             dialog.addEventListener('transitionend', this.hideOnTransitionComplete);
         }
@@ -123,7 +95,6 @@ class Dialog {
     handleSubmit(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
-        console.log('submit form...');
 
         const data = {
             title: formData.get('title') || 'Untitled event',

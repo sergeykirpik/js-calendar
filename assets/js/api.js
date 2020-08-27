@@ -1,4 +1,5 @@
 import { die } from './utils';
+import { showMessage } from './message';
 
 //TODO: add exception handling
 
@@ -27,6 +28,7 @@ class ApiService {
                 return response.json();
             })
             .then(data => data.data)
+            .catch(showMessage)
         ;
     }
 
@@ -57,5 +59,6 @@ class ApiService {
         return this.http(GET, '/api/events/');
     }
 }
+
 
 export default ApiService;

@@ -1,5 +1,31 @@
+function makeDraggable(element) {
+
+    let lastMouseDownEvent = null;
+
+    const drag = function (e) {
+        element.style.left = e.clientX - lastMouseDownEvent.offsetX + 'px';
+        element.style.top = e.clientY - lastMouseDownEvent.offsetY + 'px';
+    }
+
+    const dragStop = function () {
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', dragStop);
+    }
+
+    element.addEventListener('mousedown', function (e) {
+        if (e.button !== 0) {
+            return;
+        }
+        if (e.target.classList.contains('drag-handle')) {
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragStop);
+            lastMouseDownEvent = e;
+        }
+    });
+}
+
 function die(message) {
     throw new Error(message);
 }
 
-export { die };
+export { die, makeDraggable };

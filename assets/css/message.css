@@ -1,0 +1,23 @@
+.message {
+    padding: 10px;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #721c24;
+    border-radius: 10px;
+    position: fixed;
+    top: 20vh;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: fadeinout 4s linear forwards;
+    z-index: 1000;
+}
+
+@keyframes fadeinout {
+    0%,100% {
+        opacity: 0;
+    }
+    10%,90% {
+        opacity: 1;
+    }
+}
+

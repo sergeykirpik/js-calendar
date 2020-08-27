@@ -1,5 +1,6 @@
 import '../css/app.css';
 import '../css/dialog.css';
+import '../css/message.css';
 
 import EventEmitter from './event-emitter';
 
@@ -8,6 +9,7 @@ import { setupEvents } from './events';
 import { updateCalendarCells, renderCalendar, deselectAllIntervals, updateInterval, removeInterval, appendInterval } from './calendar';
 import Dialog from './dialog';
 import ApiService from './api';
+import { showMessage } from './message';
 
 const eventEmitter = new EventEmitter();
 const apiService = new ApiService(eventEmitter);
@@ -36,6 +38,11 @@ const dialog = new Dialog({
 updateCalendarCells();
 
 setupEvents(dialog, eventEmitter);
+
+window.addEventListener('error', e => {
+    showMessage(e.message);
+    e.preventDefault();
+});
 
 apiService.getAllEvents().then(renderCalendar);
 

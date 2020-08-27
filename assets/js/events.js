@@ -86,6 +86,9 @@ function setupEvents(dialog, eventEmitter) {
      * @param {MouseEvent} e
      */
     const mouseDownHandler = function(e) {
+        if (e.button !== 0) {
+            return;
+        }
         if (e.target.classList.contains('calendar-interval')) {
             const rect = e.target.getBoundingClientRect();
             lastMouseDownEvent = e;
