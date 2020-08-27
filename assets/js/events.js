@@ -106,7 +106,11 @@ function setupEvents(dialog, eventEmitter) {
         if (e.target.classList.contains('calendar-interval')) {
             selectInterval(e.target);
             dialog.openDialog(e.target.dataset.id);
-        } else if (e.target.classList.contains('calendar-cell')) {
+        }
+        else if (e.target.classList.contains('calendar-cell')) {
+            dialog.openDialog(null);
+        }
+        else if (e.target.classList.contains('calendar-cell')) {
             deselectAllIntervals();
             dialog.closeDialog();
         }

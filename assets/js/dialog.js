@@ -76,12 +76,25 @@ class Dialog {
 
     openDialog(id) {
         const dialog = document.querySelector('.dialog');
+        dialog.querySelector('.status').textContent = ``;
         if (dialog) {
             dialog.classList.remove('hidden');
             dialog.classList.remove('transparent');
         }
-        this.api.getEvent(id).then(this.fillDialog);
-        dialog.querySelector('.status').textContent = `[Loading: id: ${ id }... ]`;
+        if (id !== null) {
+            dialog.querySelector('.status').textContent = `[Loading: id: ${ id }... ]`;
+            this.api.getEvent(id).then(this.fillDialog);
+        } else {
+            this.fillDialog({
+                status: 'new',
+                title: '',
+                description: '',
+                startDate: new Date().toISOString(),
+                endDate: new Date().toISOString(),
+                color: '#aaa',
+                author: 'You',
+            });
+        }
     }
 
     hideOnTransitionComplete(e) {

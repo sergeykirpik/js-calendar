@@ -1,5 +1,8 @@
 <div class="dialog hidden transparent">
-    <h2 class="drag-handle">Edit Event<span class="status"></span></h2>
+    <h2 class="drag-handle">
+        <span class="status"></span>
+        <button type="button" class="btn btn-close">✕</button>
+    </h2>
     <div class="dialog-container">
         <form>
             <input type="hidden" name="eventId">
@@ -42,9 +45,9 @@
                 <input id="author" type="text" disabled class="author">
             </div>
 
-            <div d-flex inline>
-                <button type="button" class="btn btn-close">Close</button>
-                <button type="submit" class="btn btn-primary f-right">Save</button>
+            <div d-flex>
+                <button type="button" class="btn btn-delete">Delete</button>
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
 
         </form>

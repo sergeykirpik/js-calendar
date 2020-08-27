@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Event;
 use App\Repository\EventRepository;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,14 +25,14 @@ class EventController extends AbstractController
     /**
      * @Route("/{id}", methods={"GET"})
      */
-    public function show($id, EventRepository $eventRepository) {
+    public function showAction($id, EventRepository $eventRepository) {
         return $this->json(['data' => $eventRepository->find($id)]);
     }
 
     /**
      * @Route("/{id}", methods={"PATCH"})
      */
-    public function edit($id, Request $request, EventRepository $eventRepository)
+    public function editAction($id, Request $request, EventRepository $eventRepository)
     {
         $event = $eventRepository->find($id);
         if (!$event) {
@@ -59,5 +60,24 @@ class EventController extends AbstractController
         $this->getDoctrine()->getManager()->flush();
 
         return $this->json(['data' => $eventRepository->find($id)]);
+    }
+
+    /**
+     * @Route("/{id}", methods={"DELETE"})
+     */
+    public function deleteAction($id, EventRepository $repo)
+    {
+        $event = $repo->find($id);
+
+        if (!$event) {
+            throw $this->createNotFoundException('Event not found: id = ' . $id);
+        }
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($event);
+        $em->flush();
+
+        return $this->json([
+            'id' => $id,
+        ]);
     }
 }
