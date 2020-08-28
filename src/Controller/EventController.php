@@ -59,7 +59,11 @@ class EventController extends AbstractController
     {
         $event = $eventRepository->find($id);
         if (!$event) {
-            throw $this->createNotFoundException('Not found.');
+            throw $this->createNotFoundException('Event not found: id = ' . $id);
+        }
+
+        if ($event->getAuthor() !== $this->getUser()->getEmail()) {
+            throw $this->createAccessDeniedException('Not enough permissions to complete this operation.');
         }
 
         $data = json_decode($request->getContent(), true);
@@ -91,10 +95,14 @@ class EventController extends AbstractController
     public function deleteAction($id, EventRepository $repo)
     {
         $event = $repo->find($id);
-
         if (!$event) {
             throw $this->createNotFoundException('Event not found: id = ' . $id);
         }
+
+        if ($event->getAuthor() !== $this->getUser()->getEmail()) {
+            throw $this->createAccessDeniedException('You have not enough permissions to complete this operation.');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $em->remove($event);
         $em->flush();

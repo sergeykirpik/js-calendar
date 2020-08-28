@@ -28,7 +28,10 @@ class ApiService {
                 return response.json();
             })
             .then(data => data.data)
-            .catch(showMessage)
+            .catch(err => {
+                showMessage(err);
+                return Promise.reject(err);
+            })
         ;
     }
 
