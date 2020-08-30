@@ -62,7 +62,9 @@ class EventController extends AbstractController
             throw $this->createNotFoundException('Event not found: id = ' . $id);
         }
 
-        if ($event->getAuthor() !== $this->getUser()->getEmail()) {
+        if ($event->getAuthor() !== $this->getUser()->getEmail()
+                && !$this->isGranted('ROLE_ADMIN'))
+        {
             throw $this->createAccessDeniedException('Not enough permissions to complete this operation.');
         }
 
@@ -99,7 +101,9 @@ class EventController extends AbstractController
             throw $this->createNotFoundException('Event not found: id = ' . $id);
         }
 
-        if ($event->getAuthor() !== $this->getUser()->getEmail()) {
+        if ($event->getAuthor() !== $this->getUser()->getEmail()
+            && !$this->isGranted('ROLE_ADMIN'))
+        {
             throw $this->createAccessDeniedException('You have not enough permissions to complete this operation.');
         }
 
