@@ -20,10 +20,11 @@ class ExceptionSubscriber implements EventSubscriberInterface
 
     public function processException(ExceptionEvent $event)
     {
-        $error = [
-            'message' => $event->getThrowable()->getMessage(),
-        ];
-
-        $event->setResponse(new JsonResponse($error));
+        if ($event->getRequest()->headers->get('Content-Type') === 'application/json') {
+            $error = [
+                'message' => $event->getThrowable()->getMessage(),
+            ];
+            $event->setResponse(new JsonResponse($error));
+        }
     }
 }
