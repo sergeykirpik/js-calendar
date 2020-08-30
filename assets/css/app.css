@@ -119,13 +119,17 @@ body {
     transition-duration: 0.5s;
 }
 
-.calendar-interval.locked::before {
+.calendar-interval .interval-inner {
+    position: relative;
+}
+
+.calendar-interval.locked .interval-inner::before {
     content: '';
     position: absolute;
-    left: -3px;
-    top: -7px;
-    width: 15px;
-    height: 15px;
+    left: -10px;
+    top: -12px;
+    width: 12px;
+    height: 12px;
     background-image: url('../images/lock.svg');
     background-repeat: no-repeat;
     z-index: 300;

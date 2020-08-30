@@ -164,6 +164,10 @@ Calendar.prototype.updateInterval = function(data) {
 
     this.fixIntervalPosition(el);
 
+    const inner = document.createElement('div');
+    inner.className = 'interval-inner';
+    el.insertBefore(inner, el.firstChild);
+
     return el;
 }
 
