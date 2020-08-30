@@ -18,9 +18,12 @@ class EventController extends AbstractController
     /**
      * @Route("/", methods={"GET"})
      */
-    public function index(EventRepository $eventRepository)
+    public function index(Request $request, EventRepository $eventRepository)
     {
-        return $this->json([ 'data' => $eventRepository->findBy([], ['startDate' => 'ASC']) ]);
+        $startDate = new DateTime($request->query->get('startDate'));
+        $endDate = new DateTime($request->query->get('endDate'));
+        dump($startDate, $endDate);
+        return $this->json([ 'data' => $eventRepository->findByStartDateRange($startDate, $endDate) ]);
     }
 
     /**

@@ -142,16 +142,12 @@ body {
     box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
 }
 
-.hidden {
-    visibility: hidden;
-}
-
-.d-none {
-    display: none;
-}
-
 .dialog.hidden {
     visibility: hidden;
+}
+
+.day-label {
+    font-size: 0.9em;
 }
 
 .day-label.this-month {
@@ -187,3 +183,10 @@ body {
     text-align: center;
 }
 
+.hidden {
+    visibility: hidden;
+}
+
+.d-none {
+    display: none;
+}

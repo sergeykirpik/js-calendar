@@ -11,14 +11,23 @@ import {
     setElementColor,
 } from './color_utils';
 import CalendarModel from './calendar_model';
+import ApiService from './api';
 import { die, inRange, currentUser } from './utils';
 
 const CALENDAR_INTERVAL_VGAP = 2;
 
 class Calendar {
-    constructor({model, element}) {
+    /**
+     *
+     * @param {model: CalendarModel, element: Element, api: ApiService} param0
+     */
+    constructor({model, element, api}) {
+        /** @type CalendarModel */
         this.model_ = model || new CalendarModel();
-        this.element_ = element || die('Calendar(): element is required');
+        /** @type Element */
+        this.element_ = element || die('parameter element is required');
+        /** @type ApiService */
+        this.api_ = api || die('parameter api is required');
 
         this.render = this.render.bind(this);
         this.colIndexFromJson = this.colIndexFromJson.bind(this);
@@ -26,6 +35,69 @@ class Calendar {
         this.removeInterval = this.removeInterval.bind(this);
         this.deselectAllIntervals = this.deselectAllIntervals.bind(this);
         this.fixIntervalPosition = this.fixIntervalPosition.bind(this);
+
+        this.setupEvents();
+    }
+}
+
+Calendar.prototype.setupEvents = function() {
+    this.model_.subscribe('change', (model) => {
+        this.api_.getAllEvents({
+            startDate: model.getMinDate(),
+            endDate: model.getMaxDate(),
+        }).then(this.render);
+    });
+}
+
+Calendar.prototype.render = function(data) {
+
+    this.element_.querySelectorAll('.calendar-interval').forEach(el => el.remove());
+
+    this.updateCalendarCells();
+
+    for (let i = 0; i < data.length - 1; i++) {
+        const curr = this.indexesFromJson(data[i]);
+
+        if (curr.startIdx > this.cellIndexFromDate(this.model_.getMaxDate())) {
+            break;
+        }
+
+        if (curr.startIdx < this.cellIndexFromDate(this.model_.getMinDate())) {
+            continue;
+        }
+        this.updateInterval(data[i]);
+    }
+}
+
+/**
+ *
+ * @param {Date} date
+ */
+function formatDayLabel(date) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[date.getMonth()] + ', ' + date.getDate();
+}
+
+Calendar.prototype.updateCalendarCells = function() {
+    const cells = this.element_.querySelectorAll('.calendar-cell');
+
+    const thisMonth = startOfMonth(this.model_.getCurrentMonth());
+    const nextMonth = startOfNextMonth(thisMonth);
+
+    let currentDate = addDays(thisMonth, -thisMonth.getDay()+1);
+
+    for (let i = 0; i < cells.length; i++) {
+        cells[i].dataset.date = toLocalISODate(currentDate);
+
+        const dayLabel = cells[i].querySelector('.day-label');
+        dayLabel.textContent = formatDayLabel(currentDate);
+        if (currentDate >= thisMonth && currentDate < nextMonth) {
+            dayLabel.classList.add('this-month');
+        }
+        if (isToday(currentDate)) {
+            dayLabel.classList.add('today');
+        }
+        currentDate = addDays(currentDate, 1);
     }
 }
 
@@ -132,51 +204,8 @@ Calendar.prototype.shadeCell = function(el) {
     el.classList.add('shaded');
 }
 
-Calendar.prototype.updateCalendarCells = function() {
-    const cells = this.element_.querySelectorAll('.calendar-cell');
-
-    const thisMonth = startOfMonth(new Date());
-    const nextMonth = startOfNextMonth(thisMonth);
-
-    let currentDate = addDays(thisMonth, -thisMonth.getDay()+1);
-
-    for (let i = 0; i < cells.length; i++) {
-        cells[i].dataset.date = toLocalISODate(currentDate);
-
-        const dayLabel = cells[i].querySelector('.day-label');
-        dayLabel.textContent = currentDate.getDate();
-        if (currentDate >= thisMonth && currentDate < nextMonth) {
-            dayLabel.classList.add('this-month');
-        }
-        if (isToday(currentDate)) {
-            dayLabel.classList.add('today');
-        }
-        currentDate = addDays(currentDate, 1);
-    }
-}
-
 Calendar.prototype.colIndexFromJson = function(jsonDate) {
     return this.cellIndexFromJson(jsonDate) % 7;
-}
-
-Calendar.prototype.render = function(data) {
-
-    this.element_.querySelectorAll('.calendar-interval').forEach(el => el.remove());
-
-    this.updateCalendarCells();
-
-    for (let i = 0; i < data.length - 1; i++) {
-        const curr = this.indexesFromJson(data[i]);
-
-        if (curr.startIdx > this.cellIndexFromDate(this.model_.getMaxDate())) {
-            break;
-        }
-
-        if (curr.startIdx < this.cellIndexFromDate(this.model_.getMinDate())) {
-            continue;
-        }
-        this.updateInterval(data[i]);
-    }
 }
 
 Calendar.prototype.fixAllIntervalsInRow = function(calendarRow) {

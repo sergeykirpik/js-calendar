@@ -16,12 +16,12 @@ class CalendarModel extends EventEmitter {
         return addDays(this.getMinDate(), this.daysShown_-1);
     }
 
-    incMonth() {
+    nextMonth() {
         this.currentMonth_ = startOfNextMonth(this.currentMonth_);
         this.fireUpdate_();
     }
 
-    decMonth() {
+    prevMonth() {
         this.currentMonth_ = startOfMonth(new Date(this.currentMonth_.getTime()-1));
         this.fireUpdate_();
     }
@@ -31,7 +31,7 @@ class CalendarModel extends EventEmitter {
     }
 
     fireUpdate_() {
-        this.emit('change');
+        this.emit('change', this);
     }
 }
 

@@ -61,8 +61,10 @@ class ApiService {
         ;
     }
 
-    getAllEvents() {
-        return this.http(GET, '/api/events/');
+    getAllEvents({startDate, endDate}) {
+        const qStartDate = startDate ? startDate.toJSON() : '';
+        const qEndDate = endDate ? endDate.toJSON(): '';
+        return this.http(GET, `/api/events/?startDate=${qStartDate}&endDate=${qEndDate}`);
     }
 }
 

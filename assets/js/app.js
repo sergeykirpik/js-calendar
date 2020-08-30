@@ -11,14 +11,23 @@ import ApiService from './api';
 import { setupEvents } from './events';
 
 import { showMessage } from './message';
+import CalendarHeading from './calendar-heading';
 
 const eventEmitter = new EventEmitter();
 const apiService = new ApiService(eventEmitter);
 
-const calendar = new Calendar({
-    element: document.querySelector('.calendar'),
+const calendarModel = new CalendarModel();
+
+const calendarHeading = new CalendarHeading({
+    element: document.querySelector('.calendar-heading-wrapper'),
+    model: calendarModel,
 });
 
+const calendar = new Calendar({
+    element: document.querySelector('.calendar'),
+    model: calendarModel,
+    api: apiService,
+});
 
 eventEmitter.subscribe('dialog.close', calendar.deselectAllIntervals);
 
@@ -45,13 +54,13 @@ const dialog = new Dialog({
     api: apiService,
 });
 
-
 setupEvents({dialog, eventEmitter, calendar});
 
+apiService.getAllEvents({
+    startDate: calendarModel.getMinDate(),
+    endDate: calendarModel.getMaxDate(),
+}).then(calendar.render);
 
-apiService.getAllEvents().then(calendar.render);
-
-const calendarModel = new CalendarModel();
 
 calendarModel.subscribe('change', () => {
     console.log(calendarModel.getCurrentMonth());
