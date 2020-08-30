@@ -3,31 +3,41 @@ import '../css/dialog.css';
 import '../css/message.css';
 
 import EventEmitter from './event-emitter';
+import Calendar from './calendar';
+import CalendarModel from './calendar_model';
+import Dialog from './dialog';
+import ApiService from './api';
 
 import { setupEvents } from './events';
 
-import { updateCalendarCells, renderCalendar, deselectAllIntervals, updateInterval, removeInterval, appendInterval } from './calendar';
-import Dialog from './dialog';
-import ApiService from './api';
 import { showMessage } from './message';
 
 const eventEmitter = new EventEmitter();
 const apiService = new ApiService(eventEmitter);
 
-eventEmitter.subscribe('dialog.close', () => deselectAllIntervals());
+const calendar = new Calendar({
+    element: document.querySelector('.calendar'),
+});
 
-eventEmitter.subscribe('interval.dragging.stop', el => {
+
+eventEmitter.subscribe('dialog.close', calendar.deselectAllIntervals);
+
+eventEmitter.subscribe('interval.drop', el => {
     apiService.patchEvent(el.dataset.id, {
         startDate: new Date(el.dataset.startDate),
         endDate: new Date(el.dataset.endDate),
     });
 });
 
-eventEmitter.subscribe('api.patch.event', updateInterval);
+eventEmitter.subscribe('api.patch.event', calendar.updateInterval);
 
-eventEmitter.subscribe('api.delete.event', removeInterval);
+eventEmitter.subscribe('api.patch.event.error', ({id}) => {
+    apiService.getEvent(id).then(calendar.updateInterval);
+});
 
-eventEmitter.subscribe('api.post.event', appendInterval);
+eventEmitter.subscribe('api.delete.event', calendar.removeInterval);
+
+eventEmitter.subscribe('api.post.event', calendar.updateInterval);
 
 const dialog = new Dialog({
     element: document.querySelector('.dialog'),
@@ -35,16 +45,21 @@ const dialog = new Dialog({
     api: apiService,
 });
 
-updateCalendarCells();
 
-setupEvents(dialog, eventEmitter);
+setupEvents({dialog, eventEmitter, calendar});
 
-window.addEventListener('error', e => {
-    showMessage(e.message);
-    e.preventDefault();
+
+apiService.getAllEvents().then(calendar.render);
+
+const calendarModel = new CalendarModel();
+
+calendarModel.subscribe('change', () => {
+    console.log(calendarModel.getCurrentMonth());
 });
 
-apiService.getAllEvents().then(renderCalendar);
 
 
-
+// window.addEventListener('error', e => {
+//     showMessage(e.message);
+//     e.preventDefault();
+// });

@@ -28,4 +28,12 @@ function die(message) {
     throw new Error(message);
 }
 
-export { die, makeDraggable };
+function inRange(val, min, max) {
+    return val >= min && val <= max;
+}
+
+function currentUser() {
+    return document.body.dataset.user;
+}
+
+export { die, makeDraggable, inRange, currentUser };

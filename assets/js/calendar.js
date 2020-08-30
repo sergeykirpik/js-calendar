@@ -10,50 +10,78 @@ import {
 import {
     setElementColor,
 } from './color_utils';
+import CalendarModel from './calendar_model';
+import { die, inRange, currentUser } from './utils';
 
 const CALENDAR_INTERVAL_VGAP = 2;
 
+class Calendar {
+    constructor({model, element}) {
+        this.model_ = model || new CalendarModel();
+        this.element_ = element || die('Calendar(): element is required');
 
-function findInterval(dataId) {
-    return document.querySelector(`[data-id="${dataId}"]`);
-}
-
-function updateInterval(data) {
-    const el = findInterval(data.id);
-    // el.textContent = data.title;
-    // setElementColor(el, data.color);
-    // removeInterval(data.id);
-    appendInterval(data, el);
-}
-
-function removeInterval(id) {
-    const el = findInterval(id);
-    if (el) {
-        const row = getParentRow(el);
-        el.remove();
-        fixAllIntervalsInRow(row);
+        this.render = this.render.bind(this);
+        this.colIndexFromJson = this.colIndexFromJson.bind(this);
+        this.updateInterval = this.updateInterval.bind(this);
+        this.removeInterval = this.removeInterval.bind(this);
+        this.deselectAllIntervals = this.deselectAllIntervals.bind(this);
+        this.fixIntervalPosition = this.fixIntervalPosition.bind(this);
     }
 }
 
-function findCellByDate(isoDate) {
-    return document.querySelector(`.calendar-cell[data-date="${isoDate}"]`);
+Calendar.prototype.fixIntervalPosition = function(thisEl) {
+    thisEl.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
+    const calendarRow = this.getIntervalParentRow(thisEl);
+    const allIntevalsInRow = calendarRow.querySelectorAll('.calendar-interval');
+
+    for (let otherEl of allIntevalsInRow) {
+
+        if (thisEl === otherEl) {
+            break;
+        }
+        let thisRect = thisEl.getBoundingClientRect();
+        let otherRect = otherEl.getBoundingClientRect();
+
+        if (thisEl !== otherEl) {
+            if (otherRect.y + otherRect.height > thisRect.y) {
+                if (inRange(otherRect.left, thisRect.left, thisRect.right)
+                    || inRange(otherRect.right, thisRect.left, thisRect.right)
+                    || inRange(thisRect.left, otherRect.left, otherRect.right)
+                    || inRange(thisRect.right, otherRect.left, otherRect.right)
+                ) {
+                    thisEl.style.marginTop = (parseInt(thisEl.style.marginTop, 10) || 0) +
+                        otherRect.y + otherRect.height - thisRect.y + CALENDAR_INTERVAL_VGAP + 'px';
+                }
+            }
+        }
+    }
 }
 
+Calendar.prototype.getIntervalParentRow = function(interval) {
+    return interval.parentElement.parentElement.parentElement;
+}
 
-function appendInterval(data, oldEl=null) {
-    const cells = document.querySelectorAll('.calendar-cell');
-    const curr = indexesFromJson(data);
+Calendar.prototype.findInterval = function(dataId) {
+    return this.element_.querySelector(`[data-id="${dataId}"]`);
+}
+
+Calendar.prototype.updateInterval = function(data) {
+    const cells = this.element_.querySelectorAll('.calendar-cell');
+    const curr = this.indexesFromJson(data);
     const cell = cells[curr.startIdx];
 
-    let el = oldEl;
-    if (!el) {
-        el = document.createElement('div');
-    }
+    let el = this.findInterval(data.id);
+
+    el || (el = document.createElement('div'));
+
     const newContainer = cell.querySelector('.events-container')
     if (newContainer !== el.parentElement) {
         newContainer.appendChild(el);
     }
     el.className = 'calendar-interval ';
+    if (data['author'] !== currentUser()) {
+        el.classList.add('locked');
+    }
     el.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
     el.textContent = data['title'] || 'Untitled event';
     el.dataset.id = data['id'];
@@ -62,62 +90,50 @@ function appendInterval(data, oldEl=null) {
     setElementColor(el, data['color']);
     el.style.width = cell.offsetWidth + cell.offsetWidth * (curr.endIdx - curr.startIdx) - 5 + 'px';
 
-    fixIntervalPosition(el);
+    this.fixIntervalPosition(el);
 
     return el;
 }
 
-function renderCalendar(data) {
-
-    document.querySelectorAll('.calendar-interval').forEach(el => el.remove());
-
-    for (let i = 0; i < data.length - 1; i++) {
-        const curr = indexesFromJson(data[i]);
-
-        if (curr.startIdx > cellIndexFromDate(maxDate())) {
-            break;
-        }
-
-        if (curr.startIdx < cellIndexFromDate(minDate())) {
-            continue;
-        }
-        appendInterval(data[i]);
+Calendar.prototype.removeInterval = function(id) {
+    const el = this.findInterval(id);
+    if (el) {
+        const row = this.getIntervalParentRow(el);
+        el.remove();
+        this.fixAllIntervalsInRow(row);
     }
 }
 
-
-function deselectAllIntervals() {
-    document.querySelectorAll('.selected.calendar-interval')
+Calendar.prototype.deselectAllIntervals = function() {
+    this.element_.querySelectorAll('.selected.calendar-interval')
         .forEach(el => el.classList.remove('selected'))
     ;
 }
-
 /**
  *
  * @param {Element} el
  */
-function selectInterval(el) {
-    deselectAllIntervals();
+Calendar.prototype.selectInterval = function(el) {
+    this.deselectAllIntervals();
     el.classList.add('selected');
 }
 
-function unshadeAllCalendarCells() {
-    document.querySelectorAll('.shaded.calendar-cell')
+Calendar.prototype.unshadeAllCells = function() {
+    this.element_.querySelectorAll('.shaded.calendar-cell')
         .forEach(el => el.classList.remove('shaded'))
     ;
 }
-
 /**
  *
  * @param {Element} el
  */
-function shadeCalendarCell(el) {
-    unshadeAllCalendarCells();
+Calendar.prototype.shadeCell = function(el) {
+    this.unshadeAllCells();
     el.classList.add('shaded');
 }
 
-function updateCalendarCells() {
-    const cells = document.querySelectorAll('.calendar-cell');
+Calendar.prototype.updateCalendarCells = function() {
+    const cells = this.element_.querySelectorAll('.calendar-cell');
 
     const thisMonth = startOfMonth(new Date());
     const nextMonth = startOfNextMonth(thisMonth);
@@ -139,95 +155,64 @@ function updateCalendarCells() {
     }
 }
 
-function minDate() {
-    // TODO: calculate minDate
-    return new Date('2020-07-27');
+Calendar.prototype.colIndexFromJson = function(jsonDate) {
+    return this.cellIndexFromJson(jsonDate) % 7;
 }
 
-function maxDate() {
-    // TODO: calculate maxDate
-    return new Date('2020-09-06');
-}
+Calendar.prototype.render = function(data) {
 
-function colIndexFromJson(jsonDate) {
-    return cellIndexFromJson(jsonDate) % 7;
-}
+    this.element_.querySelectorAll('.calendar-interval').forEach(el => el.remove());
 
-function rowIndexFromJson(jsonDate) {
-    return Math.floor(cellIndexFromJson(jsonDate) / 7);
-}
+    this.updateCalendarCells();
 
-function indexesFromJson(data) {
-    return {
-        startRow: rowIndexFromJson(data['startDate']),
-        endRow: rowIndexFromJson(data['endDate']),
-        startCol: colIndexFromJson(data['startDate']),
-        endCol: colIndexFromJson(data['endDate']),
-        startIdx: cellIndexFromJson(data['startDate']),
-        endIdx: cellIndexFromJson(data['endDate'])
-    };
-}
+    for (let i = 0; i < data.length - 1; i++) {
+        const curr = this.indexesFromJson(data[i]);
 
-function inRange(val, min, max) {
-    return val >= min && val <= max;
-}
-
-function getParentRow(el) {
-    return el.parentElement.parentElement.parentElement;
-}
-
-function fixIntervalPosition(thisEl) {
-    thisEl.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
-    const calendarRow = getParentRow(thisEl);
-    const allIntevalsInRow = calendarRow.querySelectorAll('.calendar-interval');
-
-    for (let otherEl of allIntevalsInRow) {
-
-        if (thisEl === otherEl) {
+        if (curr.startIdx > this.cellIndexFromDate(this.model_.getMaxDate())) {
             break;
         }
 
-        let thisRect = thisEl.getBoundingClientRect();
-        let otherRect = otherEl.getBoundingClientRect();
-
-        if (thisEl !== otherEl) {
-            if (otherRect.y + otherRect.height > thisRect.y) {
-                if (inRange(otherRect.left, thisRect.left, thisRect.right)
-                    || inRange(otherRect.right, thisRect.left, thisRect.right)
-                    || inRange(thisRect.left, otherRect.left, otherRect.right)
-                    || inRange(thisRect.right, otherRect.left, otherRect.right)
-                ) {
-                    thisEl.style.marginTop = (parseInt(thisEl.style.marginTop, 10) || 0) +
-                        otherRect.y + otherRect.height - thisRect.y + CALENDAR_INTERVAL_VGAP + 'px';
-                }
-            }
+        if (curr.startIdx < this.cellIndexFromDate(this.model_.getMinDate())) {
+            continue;
         }
+        this.updateInterval(data[i]);
     }
 }
 
-function fixAllIntervalsInRow(thisEl) {
-    const calendarRow = thisEl.parentElement.parentElement.parentElement;
+Calendar.prototype.fixAllIntervalsInRow = function(calendarRow) {
+    calendarRow || die('calendarRow is required');
+    calendarRow.classList.contains('calendar-row') || die('parameter calendarRow must be .calendar-row');
+
     const allIntevalsInRow = calendarRow.querySelectorAll('.calendar-interval');
 
-    allIntevalsInRow.forEach(fixIntervalPosition);
+    allIntevalsInRow.forEach(this.fixIntervalPosition);
 }
 
 
+Calendar.prototype.rowIndexFromJson = function(jsonDate) {
+    return Math.floor(this.cellIndexFromJson(jsonDate) / 7);
+}
+
+Calendar.prototype.indexesFromJson = function(data) {
+    return {
+        startRow: this.rowIndexFromJson(data['startDate']),
+        endRow: this.rowIndexFromJson(data['endDate']),
+        startCol: this.colIndexFromJson(data['startDate']),
+        endCol: this.colIndexFromJson(data['endDate']),
+        startIdx: this.cellIndexFromJson(data['startDate']),
+        endIdx: this.cellIndexFromJson(data['endDate'])
+    };
+}
 /**
  *
  * @param {Date} date
  */
-function cellIndexFromDate(date) {
-    return diffInDays(minDate(), date);
+Calendar.prototype.cellIndexFromDate = function(date) {
+    return diffInDays(this.model_.getMinDate(), date);
 }
 
-function cellIndexFromJson(jsonDate) {
-    return cellIndexFromDate(new Date(toLocalISODate(jsonDate)));
+Calendar.prototype.cellIndexFromJson = function(jsonDate) {
+    return this.cellIndexFromDate(new Date(toLocalISODate(jsonDate)));
 }
 
-
-export {
-    deselectAllIntervals, selectInterval, unshadeAllCalendarCells, shadeCalendarCell,
-    updateCalendarCells, updateInterval, removeInterval, renderCalendar, fixAllIntervalsInRow, getParentRow,
-    appendInterval
-};
+export default Calendar;

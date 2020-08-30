@@ -1,10 +1,4 @@
-import {
-    shadeCalendarCell,
-    selectInterval,
-    deselectAllIntervals,
-    fixAllIntervalsInRow,
-    getParentRow,
-} from './calendar';
+
 import Dialog from './dialog';
 import EventEmitter from './event-emitter';
 
@@ -15,16 +9,15 @@ const RESIZE_OFFSET = 10;
  * @param {Dialog} dialog
  * @param {EventEmitter} eventEmitter
  */
-function setupEvents(dialog, eventEmitter) {
+function setupEvents({dialog, eventEmitter, calendar}) {
     let lastMouseDownEvent = null;
-    let draggingDetected = false;
     let destinationParent = null;
 
     /**
      *
      * @param {MouseEvent} e
      */
-    const startDragging = function(e) {
+    const handleDrag = function(e) {
         if (lastMouseDownEvent) {
             const { target, offsetX, offsetY } = lastMouseDownEvent;
             if (!target.classList.contains('dragging')) {
@@ -33,33 +26,34 @@ function setupEvents(dialog, eventEmitter) {
             target.style.left = e.clientX-offsetX+'px';
             target.style.top  = e.clientY-offsetY-(parseInt(target.style.marginTop, 10) || 0)+'px';
 
-            eventEmitter.emit('interval.dragging');
+            eventEmitter.emit('interval.drag');
         }
     }
 
     /**
      * @param {MouseEvent} e
      */
-    const stopDragging = function(e) {
-        document.removeEventListener('mousemove', startDragging);
-        document.removeEventListener('mouseup', stopDragging);
+    const handleDrop = function(e) {
+        document.removeEventListener('mousemove', handleDrag);
+        document.removeEventListener('mouseup', handleDrop);
 
-        draggingDetected =
+        const itWasDragAndDrop =
             e.clientX !== lastMouseDownEvent.clientX
             || e.clientY !== lastMouseDownEvent.clientY
         ;
 
-        if (draggingDetected) {
+        if (itWasDragAndDrop) {
             const el = lastMouseDownEvent.target;
             destinationParent.appendChild(el);
             el.classList.remove('dragging');
-            fixAllIntervalsInRow(getParentRow(el));
+            //TODO: refactor this
+            calendar.fixAllIntervalsInRow(calendar.getIntervalParentRow(el));
             lastMouseDownEvent = null;
             const parentCell = destinationParent.parentElement;
             const timeDiff = new Date(el.dataset.endDate).getTime() - new Date(el.dataset.startDate).getTime();
             el.dataset.startDate = parentCell.dataset.date;
             el.dataset.endDate = new Date(new Date(el.dataset.startDate).getTime() + timeDiff);
-            eventEmitter.emit('interval.dragging.stop', el);
+            eventEmitter.emit('interval.drop', el);
         }
     }
 
@@ -85,7 +79,7 @@ function setupEvents(dialog, eventEmitter) {
     /**
      * @param {MouseEvent} e
      */
-    const mouseDownHandler = function(e) {
+    const handleMouseDown = function(e) {
         if (e.button !== 0) {
             return;
         }
@@ -96,31 +90,30 @@ function setupEvents(dialog, eventEmitter) {
                 document.addEventListener('mousemove', startResizing);
                 document.addEventListener('mouseup', stopResizing);
             } else {
-                document.addEventListener('mousemove', startDragging);
-                document.addEventListener('mouseup', stopDragging);
+                document.addEventListener('mousemove', handleDrag);
+                document.addEventListener('mouseup', handleDrop);
             }
         }
     }
-    document.addEventListener('mousedown', mouseDownHandler);
+    document.addEventListener('mousedown', handleMouseDown);
 
-    document.addEventListener('click', function(e) {
-        if (draggingDetected) {
-            return;
-        }
+    const handleClick = function(e) {
         if (e.target.classList.contains('calendar-interval')) {
-            selectInterval(e.target);
+            calendar.selectInterval(e.target);
             dialog.openDialog({ id: e.target.dataset.id });
         }
         else if (e.target.classList.contains('calendar-cell')) {
             dialog.openDialog({ startDate: new Date(e.target.dataset.date) });
         }
         else if (e.target.classList.contains('calendar-cell')) {
-            deselectAllIntervals();
+            calendar.deselectAllIntervals();
             dialog.closeDialog();
         }
-    });
+    }
 
-    document.addEventListener('mousemove', function(e) {
+    document.addEventListener('click', handleClick);
+
+    const handleMouseMove = function(e) {
         if (e.target.classList.contains('calendar-interval')) {
             e.target.style.cursor = 'pointer';
 
@@ -131,11 +124,14 @@ function setupEvents(dialog, eventEmitter) {
         }
         document.elementsFromPoint(e.clientX, e.clientY).forEach(el => {
             if (el.classList.contains('calendar-cell')) {
-                shadeCalendarCell(el);
+                // TODO: refactor this
+                calendar.shadeCell(el);
                 destinationParent = el.querySelector('.events-container');
             }
         });
-    });
+    }
+
+    document.addEventListener('mousemove', handleMouseMove);
 
     const correctCalendarHeadingPosition = function() {
         const calendarHeading = document.querySelector('.calendar-heading');

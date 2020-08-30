@@ -21,16 +21,18 @@ class ApiService {
         }
         return fetch(endpoint, options)
             .then(response => {
-                response.ok || die('Response is not ok');
-
                 response.headers.get('Content-Type') === 'application/json' || die('Invalid Content-Type');
 
-                return response.json();
+                return response.json().then(json => {
+                    if (!response.ok) {
+                        throw json.message;
+                    }
+                    return json.data;
+                });
             })
-            .then(data => data.data)
             .catch(err => {
                 showMessage(err);
-                return Promise.reject(err);
+                throw err;
             })
         ;
     }
@@ -42,6 +44,7 @@ class ApiService {
     patchEvent(id, data) {
         return this.http(PATCH, `/api/events/${id}`, data)
             .then(data => this.eventEmitter.emit('api.patch.event', data))
+            .catch(error => this.eventEmitter.emit('api.patch.event.error', {id, error}))
         ;
     }
 
