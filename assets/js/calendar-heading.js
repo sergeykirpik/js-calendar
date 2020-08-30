@@ -27,6 +27,19 @@ class CalendarHeading {
         this.element_.querySelector('.btn-prev-month')
             .addEventListener('click', this.handlePrevMonthClick)
         ;
+
+        const correctCalendarHeadingPosition = function() {
+            const calendarHeading = document.querySelector('.calendar-heading');
+            const calendar = document.querySelector('.calendar');
+
+            if (calendar && calendarHeading) {
+                const rect = calendar.getBoundingClientRect();
+                calendarHeading.style.left = rect.left + 'px';
+                calendarHeading.style.width = rect.width-10 + 'px';
+            }
+        }
+        window.addEventListener('resize', correctCalendarHeadingPosition);
+        correctCalendarHeadingPosition();
     }
 }
 

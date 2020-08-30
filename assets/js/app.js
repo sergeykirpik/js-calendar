@@ -38,6 +38,12 @@ eventEmitter.subscribe('interval.drop', el => {
     });
 });
 
+eventEmitter.subscribe('interval.resize', el => {
+    apiService.patchEvent(el.dataset.id, {
+        endDate: new Date(el.dataset.endDate),
+    });
+})
+
 eventEmitter.subscribe('api.patch.event', calendar.updateInterval);
 
 eventEmitter.subscribe('api.patch.event.error', ({id}) => {
@@ -56,15 +62,9 @@ const dialog = new Dialog({
 
 setupEvents({dialog, eventEmitter, calendar});
 
-apiService.getAllEvents({
-    startDate: calendarModel.getMinDate(),
-    endDate: calendarModel.getMaxDate(),
-}).then(calendar.render);
+calendarModel.setCurrentMonth(new Date());
 
 
-calendarModel.subscribe('change', () => {
-    console.log(calendarModel.getCurrentMonth());
-});
 
 
 

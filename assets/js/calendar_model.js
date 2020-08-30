@@ -30,8 +30,13 @@ class CalendarModel extends EventEmitter {
         return this.currentMonth_;
     }
 
+    setCurrentMonth(date) {
+        this.currentMonth_ = startOfMonth(date);
+        this.fireUpdate_();
+    }
+
     fireUpdate_() {
-        this.emit('change', this);
+        this.emit('calendar-model.change', this);
     }
 }
 

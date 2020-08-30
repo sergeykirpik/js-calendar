@@ -42,7 +42,7 @@ class Calendar {
 }
 
 Calendar.prototype.setupEvents = function() {
-    this.model_.subscribe('change', (model) => {
+    this.model_.subscribe('calendar-model.change', (model) => {
         this.api_.getAllEvents({
             startDate: model.getMinDate(),
             endDate: model.getMaxDate(),
@@ -165,11 +165,11 @@ Calendar.prototype.updateInterval = function(data) {
     setElementColor(el, data['color']);
     el.style.width = cell.offsetWidth + cell.offsetWidth * (curr.endIdx - curr.startIdx) - 5 + 'px';
 
-    this.fixIntervalPosition(el);
-
     const inner = document.createElement('div');
     inner.className = 'interval-inner';
     el.insertBefore(inner, el.firstChild);
+
+    this.fixAllIntervalsInRow(this.getIntervalParentRow(el));
 
     return el;
 }

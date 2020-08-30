@@ -1,23 +1,23 @@
 
 import Dialog from './dialog';
 import EventEmitter from './event-emitter';
-import { parseISO, toLocalISODate, toLocalISODateAndTime } from './date_utils';
+import Calendar from './calendar';
+
+import { parseISO, toLocalISODateAndTime } from './date_utils';
 
 const RESIZE_OFFSET = 10;
 
 /**
  *
- * @param {Dialog} dialog
- * @param {EventEmitter} eventEmitter
+ * @param {{ dialog: Dialog, eventEmitter: EventEmitter, calendar: Calendar }}
  */
 function setupEvents({dialog, eventEmitter, calendar}) {
     let lastMouseDownEvent = null;
     let destinationParent = null;
+    let itWasDragAndDrop = false;
+    let itWasResize = false;
 
-    /**
-     *
-     * @param {MouseEvent} e
-     */
+    /** @param {MouseEvent} e*/
     const handleDrag = function(e) {
         if (lastMouseDownEvent) {
             const { target, offsetX, offsetY } = lastMouseDownEvent;
@@ -31,9 +31,7 @@ function setupEvents({dialog, eventEmitter, calendar}) {
         }
     }
 
-    /**
-     * @param {MouseEvent} e
-     */
+    /** @param {MouseEvent} e */
     const handleDrop = function(e) {
         document.removeEventListener('mousemove', handleDrag);
         document.removeEventListener('mouseup', handleDrop);
@@ -66,37 +64,42 @@ function setupEvents({dialog, eventEmitter, calendar}) {
         }
     }
 
-    /**
-     * @param {MouseEvent} e
-     */
-    const startResizing = function(e) {
+    /** @param {MouseEvent} e */
+    const doResizing = function(e) {
         if (lastMouseDownEvent) {
             const { target, offsetX, clientX } = lastMouseDownEvent;
             target.style.width = offsetX + (e.clientX - clientX) + 'px';
         }
     }
 
-    /**
-     * @param {MouseEvent} e
-     */
+    /** @param {MouseEvent} e */
     const stopResizing = function(e) {
-        document.removeEventListener('mousemove', startResizing);
+        document.removeEventListener('mousemove', doResizing);
         document.removeEventListener('mouseup', stopResizing);
+        const el = lastMouseDownEvent.target;
+        const endDate = parseISO(el.dataset.endDate);
+        const newEndDate = parseISO(destinationParent.parentElement.dataset.date);
+        newEndDate.setHours(endDate.getHours());
+        newEndDate.setMinutes(endDate.getMinutes());
+
+        el.dataset.endDate = newEndDate;
+        eventEmitter.emit('interval.resize', el);
+        itWasResize = true;
         lastMouseDownEvent = null;
     }
 
-    /**
-     * @param {MouseEvent} e
-     */
+    /** @param {MouseEvent} e */
     const handleMouseDown = function(e) {
         if (e.button !== 0) {
             return;
         }
+        itWasDragAndDrop = false;
+        itWasResize = false;
         if (e.target.classList.contains('calendar-interval')) {
             const rect = e.target.getBoundingClientRect();
             lastMouseDownEvent = e;
             if (rect.width - e.offsetX < RESIZE_OFFSET) {
-                document.addEventListener('mousemove', startResizing);
+                document.addEventListener('mousemove', doResizing);
                 document.addEventListener('mouseup', stopResizing);
             } else {
                 document.addEventListener('mousemove', handleDrag);
@@ -107,6 +110,9 @@ function setupEvents({dialog, eventEmitter, calendar}) {
     document.addEventListener('mousedown', handleMouseDown);
 
     const handleClick = function(e) {
+        if (itWasDragAndDrop || itWasResize) {
+            return;
+        }
         if (e.target.classList.contains('calendar-interval')) {
             calendar.selectInterval(e.target);
             dialog.openDialog({ id: e.target.dataset.id });
@@ -119,7 +125,6 @@ function setupEvents({dialog, eventEmitter, calendar}) {
             dialog.closeDialog();
         }
     }
-
     document.addEventListener('click', handleClick);
 
     const handleMouseMove = function(e) {
@@ -139,21 +144,8 @@ function setupEvents({dialog, eventEmitter, calendar}) {
             }
         });
     }
-
     document.addEventListener('mousemove', handleMouseMove);
 
-    const correctCalendarHeadingPosition = function() {
-        const calendarHeading = document.querySelector('.calendar-heading');
-        const calendar = document.querySelector('.calendar');
-
-        if (calendar && calendarHeading) {
-            const rect = calendar.getBoundingClientRect();
-            calendarHeading.style.left = rect.left + 'px';
-            calendarHeading.style.width = rect.width-10 + 'px';
-        }
-    }
-    window.addEventListener('resize', correctCalendarHeadingPosition);
-    correctCalendarHeadingPosition();
 }
 
 export { setupEvents };
