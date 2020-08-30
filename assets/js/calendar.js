@@ -91,6 +91,8 @@ Calendar.prototype.updateCalendarCells = function() {
 
         const dayLabel = cells[i].querySelector('.day-label');
         dayLabel.textContent = formatDayLabel(currentDate);
+
+        dayLabel.className = 'day-label';
         if (currentDate >= thisMonth && currentDate < nextMonth) {
             dayLabel.classList.add('this-month');
         }
