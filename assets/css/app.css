@@ -16,7 +16,9 @@ body {
 
 .calendar {
     overflow-x: hidden;
-    padding-top: 20px;
+    padding-top: 30px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .calendar-heading-wrapper {
@@ -27,13 +29,37 @@ body {
     background-color: rgba(0, 0, 0, 0.7);
     color: #fff;
     z-index: 500;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .calendar-heading {
     position: relative;
     display: flex;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.heading-btn {
+    width: 20px;
+    height: 20px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.heading-btn:hover {
+    opacity: 0.5;
+}
+
+.btn-prev-month {
+    background-image: url('../images/chevron-left.svg');
+}
+
+.btn-next-month {
+    background-image: url('../images/chevron-right.svg');
 }
 
 .calendar-heading .item {
@@ -67,11 +93,11 @@ body {
 }
 
 .calendar-cell.shaded {
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgb(229, 255, 254);
 }
 
 .calendar-row:nth-child(odd) .calendar-cell.shaded{
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(229, 255, 255, 0.788);
 }
 
 .calendar-cell .events-container {
@@ -91,6 +117,18 @@ body {
     margin-left: 2px;
     transition: transform;
     transition-duration: 0.5s;
+}
+
+.calendar-interval.locked::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: -7px;
+    width: 15px;
+    height: 15px;
+    background-image: url('../images/lock.svg');
+    background-repeat: no-repeat;
+    z-index: 300;
 }
 
 .calendar-interval.dragging {
