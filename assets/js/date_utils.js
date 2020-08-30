@@ -98,7 +98,16 @@ function toLocalISODateAndTime(date) {
     return toLocalISODate(date)+'T'+toLocalISOTime(date);
 }
 
+function parseISO(dateTimeString) {
+    const [dateString, timeString='00:00:00'] = dateTimeString.split('.')[0].split('T');
+    const [year, month, date] = dateString.split('-');
+    const [hours, minutes, seconds] = timeString.split(':');
+
+    return new Date(year, month-1, date, hours, minutes, seconds);
+}
+
 export {
     startOfMonth, startOfNextMonth, addDays, isToday, diffInDays,
-    padWithZero, toLocalISODate, toLocalISOTime, toLocalISODateAndTime, toLocalISOTimeWithoutSeconds
+    padWithZero, toLocalISODate, toLocalISOTime, toLocalISODateAndTime, toLocalISOTimeWithoutSeconds,
+    parseISO
 };

@@ -1,6 +1,7 @@
 
 import Dialog from './dialog';
 import EventEmitter from './event-emitter';
+import { parseISO, toLocalISODate, toLocalISODateAndTime } from './date_utils';
 
 const RESIZE_OFFSET = 10;
 
@@ -50,9 +51,17 @@ function setupEvents({dialog, eventEmitter, calendar}) {
             calendar.fixAllIntervalsInRow(calendar.getIntervalParentRow(el));
             lastMouseDownEvent = null;
             const parentCell = destinationParent.parentElement;
-            const timeDiff = new Date(el.dataset.endDate).getTime() - new Date(el.dataset.startDate).getTime();
-            el.dataset.startDate = parentCell.dataset.date;
-            el.dataset.endDate = new Date(new Date(el.dataset.startDate).getTime() + timeDiff);
+
+            const startDate = parseISO(el.dataset.startDate);
+            const endDate = parseISO(el.dataset.endDate);
+            const timeDiff = endDate.getTime() - startDate.getTime();
+
+            const newStartDate = parseISO(parentCell.dataset.date);
+            newStartDate.setHours(startDate.getHours());
+            newStartDate.setMinutes(startDate.getMinutes());
+
+            el.dataset.startDate = toLocalISODateAndTime(newStartDate);
+            el.dataset.endDate = toLocalISODateAndTime(new Date(newStartDate.getTime() + timeDiff));
             eventEmitter.emit('interval.drop', el);
         }
     }

@@ -126,7 +126,7 @@ body {
 .calendar-interval.locked .interval-inner::before {
     content: '';
     position: absolute;
-    left: -10px;
+    left: -8px;
     top: -12px;
     width: 10px;
     height: 10px;

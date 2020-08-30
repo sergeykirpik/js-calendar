@@ -5,6 +5,7 @@ import {
     isToday,
     toLocalISODate,
     diffInDays,
+    toLocalISODateAndTime,
 } from './date_utils';
 
 import {
@@ -159,8 +160,8 @@ Calendar.prototype.updateInterval = function(data) {
     el.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
     el.textContent = data['title'] || 'Untitled event';
     el.dataset.id = data['id'];
-    el.dataset.startDate = toLocalISODate(data['startDate']);
-    el.dataset.endDate = toLocalISODate(data['endDate']);
+    el.dataset.startDate = toLocalISODateAndTime(data['startDate']);
+    el.dataset.endDate = toLocalISODateAndTime(data['endDate']);
     setElementColor(el, data['color']);
     el.style.width = cell.offsetWidth + cell.offsetWidth * (curr.endIdx - curr.startIdx) - 5 + 'px';
 
@@ -222,7 +223,6 @@ Calendar.prototype.fixAllIntervalsInRow = function(calendarRow) {
 
     allIntevalsInRow.forEach(this.fixIntervalPosition);
 }
-
 
 Calendar.prototype.rowIndexFromJson = function(jsonDate) {
     return Math.floor(this.cellIndexFromJson(jsonDate) / 7);
