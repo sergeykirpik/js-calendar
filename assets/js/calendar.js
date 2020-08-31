@@ -55,7 +55,7 @@ Calendar.prototype.render = function(data) {
 
     this.updateCalendarCells();
 
-    for (let i = 0; i < data.length - 1; i++) {
+    for (let i = 0; i < data.length; i++) {
         const curr = this.indexesFromJson(data[i]);
 
         if (curr.startIdx > this.cellIndexFromDate(this.model_.getMaxDate())) {
@@ -159,8 +159,8 @@ Calendar.prototype.updateInterval = function(data) {
     el.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
     el.textContent = data['title'] || 'Untitled event';
     el.dataset.id = data['id'];
-    el.dataset.startDate = data['startDate'];
-    el.dataset.endDate = data['endDate'];
+    el.dataset.startDate = toLocalISODateAndTime(data['startDate']);
+    el.dataset.endDate = toLocalISODateAndTime(data['endDate']);
     setElementColor(el, data['color']);
     el.style.width = cell.offsetWidth + cell.offsetWidth * (curr.endIdx - curr.startIdx) - 5 + 'px';
 

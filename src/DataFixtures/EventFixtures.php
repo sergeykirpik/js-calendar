@@ -4,7 +4,6 @@ namespace App\DataFixtures;
 
 use App\Entity\Event;
 use App\Repository\UserRepository;
-use DateInterval;
 use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -54,7 +53,7 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
 
     public function load(ObjectManager $manager)
     {
-        for ($i = 0; $i < 150; $i++) {
+        for ($i = 0; $i < 1; $i++) {
             $manager->persist($this->randomEvent());
         }
         $manager->flush();

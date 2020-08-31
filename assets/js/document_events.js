@@ -82,7 +82,7 @@ function setupEvents({dialog, eventEmitter, calendar}) {
         newEndDate.setHours(endDate.getHours());
         newEndDate.setMinutes(endDate.getMinutes());
 
-        el.dataset.endDate = newEndDate;
+        el.dataset.endDate = toLocalISODateAndTime(newEndDate);
         eventEmitter.emit('interval.resize', el);
         itWasResize = true;
         lastMouseDownEvent = null;

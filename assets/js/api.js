@@ -48,13 +48,15 @@ class ApiService {
 
     patchEvent(id, data) {
         return this.http(PATCH, `/api/events/${id}`, data)
-            .then(data => this.eventEmitter.emit('api.patch.event', DataConverter.eventFromJSON(data)))
+            .then(DataConverter.eventFromJSON)
+            .then(data => this.eventEmitter.emit('api.patch.event', data))
             .catch(error => this.eventEmitter.emit('api.patch.event.error', {id, error}))
         ;
     }
 
     postEvent(data) {
         return this.http(POST, '/api/events/', data)
+            .then(DataConverter.eventFromJSON)
             .then(data => this.eventEmitter.emit('api.post.event', data))
         ;
     }
@@ -62,7 +64,7 @@ class ApiService {
     deleteEvent(id) {
         id || die('Invalid id');
         return this.http(DELETE, `/api/events/${id}`)
-            .then(data => this.eventEmitter.emit('api.delete.event', id))
+            .then(() => this.eventEmitter.emit('api.delete.event', id))
         ;
     }
 
