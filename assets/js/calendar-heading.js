@@ -34,8 +34,7 @@ class CalendarHeading {
 
             if (calendar && calendarHeading) {
                 const rect = calendar.getBoundingClientRect();
-                calendarHeading.style.left = rect.left + 'px';
-                calendarHeading.style.width = rect.width-10 + 'px';
+                calendarHeading.style.width = rect.width-20 + 'px';
             }
         }
         window.addEventListener('resize', correctCalendarHeadingPosition);

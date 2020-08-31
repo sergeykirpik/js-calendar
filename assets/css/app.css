@@ -30,13 +30,13 @@ body {
     color: #fff;
     z-index: 500;
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding-left: 10px;
-    padding-right: 10px;
+    /* padding-left: 10px; */
+    /* padding-right: 10px; */
 }
 
 .calendar-heading {
-    position: relative;
     display: flex;
     padding-top: 10px;
     padding-bottom: 10px;
