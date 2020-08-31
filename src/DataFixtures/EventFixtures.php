@@ -34,7 +34,7 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
         $users = $this->userRepository->findAll();
 
         $faker = $this->faker;
-        $statuses = ['new', 'in-progress', 'done', 'canceled'];
+        $statuses = ['in-progress', 'done', 'canceled'];
 
         $start = $faker->dateTimeBetween('-50 days', '+50 days');
         $finish = $start->getTimestamp() + random_int(3600, 100000);
