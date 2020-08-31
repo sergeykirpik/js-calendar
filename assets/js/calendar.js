@@ -31,7 +31,6 @@ class Calendar {
         this.api_ = api || die('parameter api is required');
 
         this.render = this.render.bind(this);
-        this.colIndexFromJson = this.colIndexFromJson.bind(this);
         this.updateInterval = this.updateInterval.bind(this);
         this.removeInterval = this.removeInterval.bind(this);
         this.deselectAllIntervals = this.deselectAllIntervals.bind(this);
@@ -160,8 +159,8 @@ Calendar.prototype.updateInterval = function(data) {
     el.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
     el.textContent = data['title'] || 'Untitled event';
     el.dataset.id = data['id'];
-    el.dataset.startDate = toLocalISODateAndTime(data['startDate']);
-    el.dataset.endDate = toLocalISODateAndTime(data['endDate']);
+    el.dataset.startDate = data['startDate'];
+    el.dataset.endDate = data['endDate'];
     setElementColor(el, data['color']);
     el.style.width = cell.offsetWidth + cell.offsetWidth * (curr.endIdx - curr.startIdx) - 5 + 'px';
 
@@ -211,8 +210,8 @@ Calendar.prototype.shadeCell = function(el) {
     el.classList.add('shaded');
 }
 
-Calendar.prototype.colIndexFromJson = function(jsonDate) {
-    return this.cellIndexFromJson(jsonDate) % 7;
+Calendar.prototype.colIndexFromDate = function(date) {
+    return this.cellIndexFromDate(date) % 7;
 }
 
 Calendar.prototype.fixAllIntervalsInRow = function(calendarRow) {
@@ -224,18 +223,18 @@ Calendar.prototype.fixAllIntervalsInRow = function(calendarRow) {
     allIntevalsInRow.forEach(this.fixIntervalPosition);
 }
 
-Calendar.prototype.rowIndexFromJson = function(jsonDate) {
-    return Math.floor(this.cellIndexFromJson(jsonDate) / 7);
+Calendar.prototype.rowIndexFromDate = function(date) {
+    return Math.floor(this.cellIndexFromDate(date) / 7);
 }
 
 Calendar.prototype.indexesFromJson = function(data) {
     return {
-        startRow: this.rowIndexFromJson(data['startDate']),
-        endRow: this.rowIndexFromJson(data['endDate']),
-        startCol: this.colIndexFromJson(data['startDate']),
-        endCol: this.colIndexFromJson(data['endDate']),
-        startIdx: this.cellIndexFromJson(data['startDate']),
-        endIdx: this.cellIndexFromJson(data['endDate'])
+        startRow: this.rowIndexFromDate(data['startDate']),
+        endRow: this.rowIndexFromDate(data['endDate']),
+        startCol: this.colIndexFromDate(data['startDate']),
+        endCol: this.colIndexFromDate(data['endDate']),
+        startIdx: this.cellIndexFromDate(data['startDate']),
+        endIdx: this.cellIndexFromDate(data['endDate'])
     };
 }
 /**
@@ -244,10 +243,6 @@ Calendar.prototype.indexesFromJson = function(data) {
  */
 Calendar.prototype.cellIndexFromDate = function(date) {
     return diffInDays(this.model_.getMinDate(), date);
-}
-
-Calendar.prototype.cellIndexFromJson = function(jsonDate) {
-    return this.cellIndexFromDate(new Date(toLocalISODate(jsonDate)));
 }
 
 export default Calendar;

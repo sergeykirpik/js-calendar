@@ -1,5 +1,6 @@
 import { die } from './utils';
 import { showMessage } from './message';
+import DataConverter from './data_converter';
 
 //TODO: add exception handling
 
@@ -21,6 +22,10 @@ class ApiService {
         }
         return fetch(endpoint, options)
             .then(response => {
+                if (response.redirected) {
+                    return window.location = response.url;
+                }
+
                 response.headers.get('Content-Type') === 'application/json' || die('Invalid Content-Type');
 
                 return response.json().then(json => {
@@ -38,12 +43,12 @@ class ApiService {
     }
 
     getEvent(id) {
-        return this.http(GET, `/api/events/${id}`);
+        return this.http(GET, `/api/events/${id}`).then(DataConverter.eventFromJSON);
     }
 
     patchEvent(id, data) {
         return this.http(PATCH, `/api/events/${id}`, data)
-            .then(data => this.eventEmitter.emit('api.patch.event', data))
+            .then(data => this.eventEmitter.emit('api.patch.event', DataConverter.eventFromJSON(data)))
             .catch(error => this.eventEmitter.emit('api.patch.event.error', {id, error}))
         ;
     }
@@ -64,7 +69,8 @@ class ApiService {
     getAllEvents({startDate, endDate}) {
         const qStartDate = startDate ? startDate.toJSON() : '';
         const qEndDate = endDate ? endDate.toJSON(): '';
-        return this.http(GET, `/api/events/?startDate=${qStartDate}&endDate=${qEndDate}`);
+        return this.http(GET, `/api/events/?startDate=${qStartDate}&endDate=${qEndDate}`)
+            .then(DataConverter.eventsFromJSON);
     }
 }
 

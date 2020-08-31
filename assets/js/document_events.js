@@ -1,6 +1,6 @@
 
 import Dialog from './dialog';
-import EventEmitter from './event-emitter';
+import EventEmitter from './emitter';
 import Calendar from './calendar';
 
 import { parseISO, toLocalISODateAndTime } from './date_utils';
@@ -118,11 +118,12 @@ function setupEvents({dialog, eventEmitter, calendar}) {
             dialog.openDialog({ id: e.target.dataset.id });
         }
         else if (e.target.classList.contains('calendar-cell')) {
-            dialog.openDialog({ startDate: new Date(e.target.dataset.date) });
-        }
-        else if (e.target.classList.contains('calendar-cell')) {
-            calendar.deselectAllIntervals();
-            dialog.closeDialog();
+            if (dialog.dialog.classList.contains('hidden')) {
+                dialog.openDialog({ startDate: parseISO(e.target.dataset.date) });
+            } else {
+                calendar.deselectAllIntervals();
+                dialog.closeDialog();
+            }
         }
     }
     document.addEventListener('click', handleClick);

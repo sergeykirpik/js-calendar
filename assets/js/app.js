@@ -2,16 +2,17 @@ import '../css/app.css';
 import '../css/dialog.css';
 import '../css/message.css';
 
-import EventEmitter from './event-emitter';
+import EventEmitter from './emitter';
 import Calendar from './calendar';
 import CalendarModel from './calendar_model';
 import Dialog from './dialog';
 import ApiService from './api';
 
-import { setupEvents } from './events';
+import { setupEvents } from './document_events';
 
 import { showMessage } from './message';
-import CalendarHeading from './calendar-heading';
+import CalendarHeading from './calendar_heading';
+import { parseISO } from './date_utils';
 
 const eventEmitter = new EventEmitter();
 const apiService = new ApiService(eventEmitter);
@@ -33,14 +34,14 @@ eventEmitter.subscribe('dialog.close', calendar.deselectAllIntervals);
 
 eventEmitter.subscribe('interval.drop', el => {
     apiService.patchEvent(el.dataset.id, {
-        startDate: new Date(el.dataset.startDate),
-        endDate: new Date(el.dataset.endDate),
+        startDate: parseISO(el.dataset.startDate),
+        endDate: parseISO(el.dataset.endDate),
     });
 });
 
 eventEmitter.subscribe('interval.resize', el => {
     apiService.patchEvent(el.dataset.id, {
-        endDate: new Date(el.dataset.endDate),
+        endDate: parseISO(el.dataset.endDate),
     });
 })
 

@@ -1,5 +1,5 @@
 import { addDays, startOfNextMonth, startOfMonth } from './date_utils';
-import EventEmitter from './event-emitter';
+import EventEmitter from './emitter';
 
 class CalendarModel extends EventEmitter {
     constructor(daysShown) {

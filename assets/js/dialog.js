@@ -1,6 +1,6 @@
 import { setElementColor } from './color_utils';
 import { toLocalISODate, toLocalISOTimeWithoutSeconds } from './date_utils';
-import EventEmitter from './event-emitter';
+import EventEmitter from './emitter';
 
 import { die, makeDraggable } from './utils';
 import ApiService from './api';
