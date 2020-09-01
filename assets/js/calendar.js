@@ -23,17 +23,15 @@ const RESIZE_OFFSET = 10;
 class Calendar extends EventEmitter {
     /**
      *
-     * @param {model: CalendarModel, element: Element, api: ApiService} params
+     * @param {model: CalendarModel, element: Element} params
      */
-    constructor({model, element, api, dialog}) {
+    constructor({model, element, dialog}) {
         super();
 
         /** @type CalendarModel */
-        this.model_ = model || new CalendarModel();
+        this.model = model || new CalendarModel();
         /** @type Element */
-        this.element_ = element || die('parameter element is required');
-        /** @type ApiService */
-        this.api_ = api || die('parameter api is required');
+        this.element = element || die('parameter element is required');
 
         this.render = this.render.bind(this);
         this.updateInterval = this.updateInterval.bind(this);
@@ -41,25 +39,24 @@ class Calendar extends EventEmitter {
         this.deselectAllIntervals = this.deselectAllIntervals.bind(this);
         this.fixIntervalPosition = this.fixIntervalPosition.bind(this);
 
-        console.log('Warning! Fake dialog!');
-        this.setupEvents(this, dialog);
+        this.setupEvents(dialog);
     }
 }
 
 Calendar.prototype.render = function(data) {
 
-    this.element_.querySelectorAll('.calendar-interval').forEach(el => el.remove());
+    this.element.querySelectorAll('.calendar-interval').forEach(el => el.remove());
 
     this.updateCalendarCells();
 
     for (let i = 0; i < data.length; i++) {
         const curr = this.indexesFromJson(data[i]);
 
-        if (curr.startIdx > this.cellIndexFromDate(this.model_.getMaxDate())) {
+        if (curr.startIdx > this.cellIndexFromDate(this.model.getMaxDate())) {
             break;
         }
 
-        if (curr.startIdx < this.cellIndexFromDate(this.model_.getMinDate())) {
+        if (curr.startIdx < this.cellIndexFromDate(this.model.getMinDate())) {
             continue;
         }
         this.updateInterval(data[i]);
@@ -76,9 +73,9 @@ function formatDayLabel(date) {
 }
 
 Calendar.prototype.updateCalendarCells = function() {
-    const cells = this.element_.querySelectorAll('.calendar-cell');
+    const cells = this.element.querySelectorAll('.calendar-cell');
 
-    const thisMonth = startOfMonth(this.model_.getCurrentMonth());
+    const thisMonth = startOfMonth(this.model.getCurrentMonth());
     const nextMonth = startOfNextMonth(thisMonth);
 
     let currentDate = addDays(thisMonth, -thisMonth.getDay()+1);
@@ -133,11 +130,11 @@ Calendar.prototype.getIntervalParentRow = function(interval) {
 }
 
 Calendar.prototype.findInterval = function(dataId) {
-    return this.element_.querySelector(`[data-id="${dataId}"]`);
+    return this.element.querySelector(`[data-id="${dataId}"]`);
 }
 
 Calendar.prototype.updateInterval = function(data) {
-    const cells = this.element_.querySelectorAll('.calendar-cell');
+    const cells = this.element.querySelectorAll('.calendar-cell');
     const curr = this.indexesFromJson(data);
     const cell = cells[curr.startIdx];
 
@@ -190,7 +187,7 @@ Calendar.prototype.removeInterval = function(id) {
 }
 
 Calendar.prototype.deselectAllIntervals = function() {
-    this.element_.querySelectorAll('.selected.calendar-interval')
+    this.element.querySelectorAll('.selected.calendar-interval')
         .forEach(el => el.classList.remove('selected'))
     ;
 }
@@ -204,7 +201,7 @@ Calendar.prototype.selectInterval = function(el) {
 }
 
 Calendar.prototype.unshadeAllCells = function() {
-    this.element_.querySelectorAll('.shaded.calendar-cell')
+    this.element.querySelectorAll('.shaded.calendar-cell')
         .forEach(el => el.classList.remove('shaded'))
     ;
 }
@@ -249,22 +246,18 @@ Calendar.prototype.indexesFromJson = function(data) {
  * @param {Date} date
  */
 Calendar.prototype.cellIndexFromDate = function(date) {
-    return dateDiffInDays(this.model_.getMinDate(), date);
+    return dateDiffInDays(this.model.getMinDate(), date);
 }
 
 
-Calendar.prototype.setupEvents = function (calendar, dialog) {
-    this.model_.subscribe('calendar-model.change', (model) => {
-        this.api_.getAllEvents({
-            startDate: model.getMinDate(),
-            endDate: model.getMaxDate(),
-        }).then(this.render);
-    });
+Calendar.prototype.setupEvents = function (dialog) {
 
     let lastMouseDownEvent = null;
     let destinationParent = null;
     let itWasDragAndDrop = false;
     let itWasResize = false;
+
+    const calendar = this;
 
     /** @param {MouseEvent} e*/
     const handleDrag = function (e) {
@@ -366,7 +359,7 @@ Calendar.prototype.setupEvents = function (calendar, dialog) {
             }
         }
     }
-    document.addEventListener('mousedown', handleMouseDown);
+    calendar.element.addEventListener('mousedown', handleMouseDown);
 
     const handleClick = function (evt) {
         console.log('click');
@@ -394,7 +387,7 @@ Calendar.prototype.setupEvents = function (calendar, dialog) {
             }
         }
     }
-    document.addEventListener('click', handleClick);
+    calendar.element.addEventListener('click', handleClick);
 
     const handleMouseMove = function (e) {
         if (e.target.classList.contains('calendar-interval')) {
@@ -413,7 +406,7 @@ Calendar.prototype.setupEvents = function (calendar, dialog) {
             }
         });
     }
-    document.addEventListener('mousemove', handleMouseMove);
+    calendar.element.addEventListener('mousemove', handleMouseMove);
 
 }
 

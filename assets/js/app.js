@@ -10,8 +10,8 @@ import ApiService from './api';
 
 import { showMessage } from './message';
 import CalendarHeading from './calendar_heading';
-import { parseISO, dateDiffHuman, dateDiffInDays } from './date_utils';
-import { isEventDone, isEventInProgress, isEventNew } from './status_utils';
+import { parseISO } from './date_utils';
+import { setupLiveStatusUpdate } from './status_utils';
 
 const eventEmitter = new EventEmitter();
 const apiService = new ApiService(eventEmitter);
@@ -32,7 +32,6 @@ const dialog = new Dialog({
 const calendar = new Calendar({
     element: document.querySelector('.calendar'),
     model: calendarModel,
-    api: apiService,
     dialog
 });
 
@@ -61,36 +60,17 @@ eventEmitter.subscribe('api.delete.event', calendar.removeInterval);
 
 eventEmitter.subscribe('api.post.event', calendar.updateInterval);
 
+calendarModel.subscribe('calendar-model.change', (model) => {
+    apiService.getAllEvents({
+        startDate: model.getMinDate(),
+        endDate: model.getMaxDate(),
+    }).then(calendar.render);
+});
+
 calendarModel.setCurrentMonth(new Date());
 
 
-function handleTimeout() {
-    calendar.element_.querySelectorAll('.calendar-interval').forEach(el => {
-        const startDate = parseISO(el.dataset.startDate);
-        const endDate = parseISO(el.dataset.endDate);
-        const isCanceled = el.dataset.canceled;
-        const now = Date.now();
-        let status = '';
-        if (isCanceled) {
-            status = '[ canceled ]'
-        }
-        else if (isEventDone({endDate})) {
-            status = '[ done ]';
-        }
-        else if (isEventInProgress({startDate, endDate})) {
-            status = '[ in-progress ]';
-        }
-        else if (isEventNew({startDate})) {
-            if (dateDiffInDays(new Date(now), startDate) < 2) {
-                status = `[ starts in  ${dateDiffHuman(new Date(now), startDate)} ]`;
-            }
-        }
-        el.querySelector('.status-label').textContent = status;
-    });
-    setTimeout(handleTimeout, 1000);
-}
-setTimeout(handleTimeout, 1000);
-
+setupLiveStatusUpdate(calendar);
 
 
 // window.addEventListener('error', e => {
