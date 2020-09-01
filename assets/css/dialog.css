@@ -122,6 +122,11 @@
     transform: rotate(90deg);
 }
 
+.btn-cancel-event,
+.btn-activate-event {
+    margin-left: 4px;
+}
+
 .d-flex {
     display: flex;
 }

@@ -159,10 +159,16 @@ Calendar.prototype.updateInterval = function(data) {
     el.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
     // refactor this
     el.innerHTML = `
-        <span class="status-label">[ starts in: 0:00:00 ]</span>
+        <span class="status-label"></span><br>
         <span class="title-label">${ data['title'] || 'Untitled event' }</span>
     `;
     el.dataset.id = data['id'];
+    if (!data['isCanceled']) {
+        delete el.dataset['canceled'];
+    } else {
+        el.dataset.canceled = 1;
+    }
+
     el.dataset.startDate = toLocalISODateAndTime(data['startDate']);
     el.dataset.endDate = toLocalISODateAndTime(data['endDate']);
     setElementColor(el, data['color']);

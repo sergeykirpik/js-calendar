@@ -1,8 +1,8 @@
 class DataConverter {
     static eventFromJSON(json) {
         const res = { ...json };
-        res['startDate'] = new Date(res['startDate']);
-        res['endDate'] = new Date(res['endDate']);
+        res['startDate'] = new Date(res['startDate'].split('+')[0]+'Z');
+        res['endDate'] = new Date(res['endDate'].split('+')[0]+'Z');
 
         return res;
     }

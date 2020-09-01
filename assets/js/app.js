@@ -12,7 +12,8 @@ import { setupEvents } from './document_events';
 
 import { showMessage } from './message';
 import CalendarHeading from './calendar_heading';
-import { parseISO, dateDiffHuman } from './date_utils';
+import { parseISO, dateDiffHuman, dateDiffInDays } from './date_utils';
+import { isEventDone, isEventInProgress, isEventNew } from './status_utils';
 
 const eventEmitter = new EventEmitter();
 const apiService = new ApiService(eventEmitter);
@@ -70,14 +71,22 @@ function handleTimeout() {
     calendar.element_.querySelectorAll('.calendar-interval').forEach(el => {
         const startDate = parseISO(el.dataset.startDate);
         const endDate = parseISO(el.dataset.endDate);
+        const isCanceled = el.dataset.canceled;
         const now = Date.now();
         let status = '';
-        if (now > endDate.getTime()) {
+        if (isCanceled) {
+            status = '[ canceled ]'
+        }
+        else if (isEventDone({endDate})) {
             status = '[ done ]';
-        } else if (now >= startDate.getTime() && now <= endDate.getTime()) {
+        }
+        else if (isEventInProgress({startDate, endDate})) {
             status = '[ in-progress ]';
-        } else if (now < endDate.getTime()) {
-            status = `[ starts in  ${dateDiffHuman(new Date(now), startDate)}]`;
+        }
+        else if (isEventNew({startDate})) {
+            if (dateDiffInDays(new Date(now), startDate) < 2) {
+                status = `[ starts in  ${dateDiffHuman(new Date(now), startDate)} ]`;
+            }
         }
         el.querySelector('.status-label').textContent = status;
     });

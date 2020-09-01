@@ -5,6 +5,20 @@ import EventEmitter from './emitter';
 import { die, makeDraggable } from './utils';
 import ApiService from './api';
 
+import { isEventNew, isEventInProgress, isEventDone } from './status_utils';
+
+function setVisibility(el, shown=false) {
+    el.classList.toggle('d-none', !shown);
+}
+
+function show(el) {
+    setVisibility(el, true);
+}
+
+function hide(el) {
+    setVisibility(el, false);
+}
+
 class Dialog {
     /**
      *
@@ -19,6 +33,9 @@ class Dialog {
         this.dialog = element || die('element parameter is required');
         this.api = api || die('api is required');
 
+        this.btnActivate = this.dialog.querySelector('.btn-activate-event');
+        this.btnCancel = this.dialog.querySelector('.btn-cancel-event');
+
         this.hideOnTransitionComplete = this.hideOnTransitionComplete.bind(this);
         this.openDialog = this.openDialog.bind(this);
         this.closeDialog = this.closeDialog.bind(this);
@@ -26,6 +43,8 @@ class Dialog {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.fillDialog = this.fillDialog.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
+        this.handleActivate = this.handleActivate.bind(this);
 
         this.setupDialogEvents();
     }
@@ -35,8 +54,37 @@ class Dialog {
     }
 
     fillDialog(data) {
-        this.dialog.querySelector('.status').textContent = `[ ${data['status']} ]`;
+        let title = '';
+        let status = '';
+
+        if (data['id']) {
+            title = 'Edit event #' + data['id'];
+            if (data['isCanceled']) {
+                status = '[ canceled ]';
+                if (!isEventDone(data)) {
+                    show(this.btnActivate);
+                }
+            }
+            else if (isEventInProgress(data)) {
+                status = '[ in-progress ]';
+                show(this.btnCancel);
+            }
+            else if (isEventDone(data)) {
+                status = '[ done ]';
+            }
+            else if (isEventNew(data)) {
+                status = '[ new ]';
+                show(this.btnCancel);
+            }
+        } else {
+            title = 'Create new event'
+            status = '[ new ]';
+        }
+
+        this.dialog.querySelector('.status').textContent = title;
+
         const form = this.dialog.querySelector('form');
+        form.status.value = status;
         form.eventId.value = data['id'];
         form.title.value = data['title'];
         form.description.value = data['description'];
@@ -53,14 +101,16 @@ class Dialog {
 
     openDialog({id, startDate, endDate}) {
         this.currentId = id;
-        const dialog = document.querySelector('.dialog');
-        dialog.querySelector('.status').textContent = ``;
-        if (dialog) {
-            dialog.classList.remove('hidden');
-            dialog.classList.remove('transparent');
+        this.dialog.querySelector('.status').textContent = ``;
+        hide(this.btnCancel);
+        hide(this.btnActivate);
+
+        if (this.dialog) {
+            this.dialog.classList.remove('hidden');
+            this.dialog.classList.remove('transparent');
         }
         if (id) {
-            dialog.querySelector('.status').textContent = `[Loading: id: ${ id }... ]`;
+            this.dialog.querySelector('.status').textContent = `[Loading: id: ${ id }... ]`;
             this.api.getEvent(id).then(this.fillDialog);
         } else {
             this.fillDialog({
@@ -122,11 +172,25 @@ class Dialog {
         this.closeDialog();
     }
 
+    handleCancel(e) {
+        this.api.patchEvent(this.currentId, { isCanceled: true });
+        this.closeDialog();
+    }
+
+    handleActivate(e) {
+        this.api.patchEvent(this.currentId, { isCanceled: false });
+        this.closeDialog();
+    }
+
     setupDialogEvents() {
 
         makeDraggable(this.dialog);
 
         this.dialog.querySelector('.btn-close').addEventListener('click', this.closeDialog);
+
+        this.btnCancel.addEventListener('click', this.handleCancel);
+
+        this.btnActivate.addEventListener('click', this.handleActivate);
 
         this.dialog.querySelector('form').addEventListener('submit', this.handleSubmit);
 

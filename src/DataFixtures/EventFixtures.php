@@ -11,7 +11,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class EventFixtures extends Fixture implements DependentFixtureInterface
 {
-    const NUMBER_OF_EVENTS = 150;
+    const NUMBER_OF_EVENTS = 0;
 
     private $faker;
     private $userRepository;
