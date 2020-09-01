@@ -1,6 +1,7 @@
 import { die } from './utils';
 import { showMessage } from './message';
 import DataConverter from './data_converter';
+import EventEmitter from './emitter';
 
 //TODO: add exception handling
 
@@ -9,10 +10,7 @@ const POST = 'post';
 const PATCH = 'patch';
 const DELETE = 'delete';
 
-class ApiService {
-    constructor(eventEmitter) {
-        this.eventEmitter = eventEmitter || die('eventEmitter is required');
-    }
+class ApiService extends EventEmitter {
 
     http(method, endpoint, data={}) {
         const headers = { 'Content-Type': 'application/json' };
@@ -49,22 +47,22 @@ class ApiService {
     patchEvent(id, data) {
         return this.http(PATCH, `/api/events/${id}`, data)
             .then(DataConverter.eventFromJSON)
-            .then(data => this.eventEmitter.emit('api.patch.event', data))
-            .catch(error => this.eventEmitter.emit('api.patch.event.error', {id, error}))
+            .then(data => this.emit('api.patch.event', data))
+            .catch(error => this.emit('api.patch.event.error', {id, error}))
         ;
     }
 
     postEvent(data) {
         return this.http(POST, '/api/events/', data)
             .then(DataConverter.eventFromJSON)
-            .then(data => this.eventEmitter.emit('api.post.event', data))
+            .then(data => this.emit('api.post.event', data))
         ;
     }
 
     deleteEvent(id) {
         id || die('Invalid id');
         return this.http(DELETE, `/api/events/${id}`)
-            .then(() => this.eventEmitter.emit('api.delete.event', id))
+            .then(() => this.emit('api.delete.event', id))
         ;
     }
 

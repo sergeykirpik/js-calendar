@@ -19,17 +19,17 @@ function hide(el) {
     setVisibility(el, false);
 }
 
-class Dialog {
+class Dialog extends EventEmitter {
     /**
      *
      * @param {Element} dialog
-     * @param {EventEmitter} emitter
      * @param {ApiService} api
      */
-    constructor({ element, emitter, api }) {
+    constructor({ element, api }) {
+        super();
+
         this.currentId = null;
 
-        this.eventEmitter = emitter || new EventEmitter();
         this.dialog = element || die('element parameter is required');
         this.api = api || die('api is required');
 
@@ -50,7 +50,7 @@ class Dialog {
     }
 
     fireEvent(evt, data) {
-        this.eventEmitter.emit(evt, data);
+        this.emit(evt, data);
     }
 
     fillDialog(data) {

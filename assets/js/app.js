@@ -2,7 +2,6 @@ import '../css/app.css';
 import '../css/dialog.css';
 import '../css/message.css';
 
-import EventEmitter from './emitter';
 import Calendar from './calendar';
 import CalendarModel from './calendar_model';
 import Dialog from './dialog';
@@ -13,8 +12,7 @@ import CalendarHeading from './calendar_heading';
 import { parseISO } from './date_utils';
 import { setupLiveStatusUpdate } from './status_utils';
 
-const eventEmitter = new EventEmitter();
-const apiService = new ApiService(eventEmitter);
+const apiService = new ApiService();
 
 const calendarModel = new CalendarModel();
 
@@ -25,7 +23,6 @@ const calendarHeading = new CalendarHeading({
 
 const dialog = new Dialog({
     element: document.querySelector('.dialog'),
-    emitter: eventEmitter,
     api: apiService,
 });
 
@@ -35,7 +32,7 @@ const calendar = new Calendar({
     dialog
 });
 
-eventEmitter.subscribe('dialog.close', calendar.deselectAllIntervals);
+dialog.subscribe('dialog.close', calendar.deselectAllIntervals);
 
 calendar.subscribe('interval.drop', el => {
     apiService.patchEvent(el.dataset.id, {
@@ -50,15 +47,15 @@ calendar.subscribe('interval.resize', el => {
     });
 })
 
-eventEmitter.subscribe('api.patch.event', calendar.updateInterval);
+apiService.subscribe('api.patch.event', calendar.updateInterval);
 
-eventEmitter.subscribe('api.patch.event.error', ({id}) => {
+apiService.subscribe('api.patch.event.error', ({id}) => {
     apiService.getEvent(id).then(calendar.updateInterval);
 });
 
-eventEmitter.subscribe('api.delete.event', calendar.removeInterval);
+apiService.subscribe('api.delete.event', calendar.removeInterval);
 
-eventEmitter.subscribe('api.post.event', calendar.updateInterval);
+apiService.subscribe('api.post.event', calendar.updateInterval);
 
 calendarModel.subscribe('calendar-model.change', (model) => {
     apiService.getAllEvents({
@@ -66,9 +63,7 @@ calendarModel.subscribe('calendar-model.change', (model) => {
         endDate: model.getMaxDate(),
     }).then(calendar.render);
 });
-
 calendarModel.setCurrentMonth(new Date());
-
 
 setupLiveStatusUpdate(calendar);
 

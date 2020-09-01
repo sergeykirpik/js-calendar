@@ -345,7 +345,6 @@ Calendar.prototype.setupEvents = function (dialog) {
             e.target = e.target.parentElement;
         }
         if (e.target.classList.contains('calendar-interval')) {
-            console.log('mousedown');
             const rect = e.target.getBoundingClientRect();
             e.offsetX = e.clientX - rect.x;
             e.offsetY = e.clientY - rect.y;
@@ -362,7 +361,6 @@ Calendar.prototype.setupEvents = function (dialog) {
     calendar.element.addEventListener('mousedown', handleMouseDown);
 
     const handleClick = function (evt) {
-        console.log('click');
         if (itWasDragAndDrop || itWasResize) {
             return;
         }
