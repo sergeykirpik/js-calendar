@@ -11,6 +11,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class EventFixtures extends Fixture implements DependentFixtureInterface
 {
+    const NUMBER_OF_EVENTS = 150;
+
     private $faker;
     private $userRepository;
 
@@ -33,7 +35,6 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
         $users = $this->userRepository->findAll();
 
         $faker = $this->faker;
-        $statuses = ['in-progress', 'done', 'canceled'];
 
         $start = $faker->dateTimeBetween('-50 days', '+50 days');
         $finish = $start->getTimestamp() + random_int(3600, 100000);
@@ -44,7 +45,7 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
         $event->setDescription($faker->text(100));
         $event->setAuthor($faker->randomElement($users)->getEmail());
         $event->setColor($faker->hexColor);
-        $event->setStatus($faker->randomElement($statuses));
+        $event->setIsCanceled($faker->boolean);
         $event->setStartDate($start);
         $event->setEndDate($finish);
 
@@ -53,7 +54,7 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
 
     public function load(ObjectManager $manager)
     {
-        for ($i = 0; $i < 1; $i++) {
+        for ($i = 0; $i < EventFixtures::NUMBER_OF_EVENTS; $i++) {
             $manager->persist($this->randomEvent());
         }
         $manager->flush();
