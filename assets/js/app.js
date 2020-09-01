@@ -29,7 +29,6 @@ const dialog = new Dialog({
 const calendar = new Calendar({
     element: document.querySelector('.calendar'),
     model: calendarModel,
-    dialog
 });
 
 dialog.subscribe('dialog.close', calendar.deselectAllIntervals);
@@ -45,7 +44,20 @@ calendar.subscribe('interval.resize', el => {
     apiService.patchEvent(el.dataset.id, {
         endDate: parseISO(el.dataset.endDate),
     });
-})
+});
+
+calendar.subscribe('calendar.interval.click', el => {
+    dialog.openDialog({ id: el.dataset.id });
+});
+
+calendar.subscribe('calendar.cell.click', el => {
+    if (dialog.isHidden()) {
+        dialog.openDialog({ startDate: parseISO(el.dataset.date) });
+    } else {
+        calendar.deselectAllIntervals();
+        dialog.closeDialog();
+    }
+});
 
 apiService.subscribe('api.patch.event', calendar.updateInterval);
 

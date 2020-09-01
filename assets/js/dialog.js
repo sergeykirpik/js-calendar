@@ -142,6 +142,10 @@ class Dialog extends EventEmitter {
         this.fireEvent('dialog.close');
     }
 
+    isHidden() {
+        return this.dialog.classList.contains('hidden');
+    }
+
     handleSubmit(e) {
         e.preventDefault();
         const formData = new FormData(e.target);

@@ -23,9 +23,9 @@ const RESIZE_OFFSET = 10;
 class Calendar extends EventEmitter {
     /**
      *
-     * @param {model: CalendarModel, element: Element} params
+     * @param {{model: CalendarModel, element: Element}} params
      */
-    constructor({model, element, dialog}) {
+    constructor({model, element}) {
         super();
 
         /** @type CalendarModel */
@@ -39,7 +39,7 @@ class Calendar extends EventEmitter {
         this.deselectAllIntervals = this.deselectAllIntervals.bind(this);
         this.fixIntervalPosition = this.fixIntervalPosition.bind(this);
 
-        this.setupEvents(dialog);
+        this.setupEvents();
     }
 }
 
@@ -250,7 +250,7 @@ Calendar.prototype.cellIndexFromDate = function(date) {
 }
 
 
-Calendar.prototype.setupEvents = function (dialog) {
+Calendar.prototype.setupEvents = function() {
 
     let lastMouseDownEvent = null;
     let destinationParent = null;
@@ -372,17 +372,10 @@ Calendar.prototype.setupEvents = function (dialog) {
         }
         if (e.target.classList.contains('calendar-interval')) {
             calendar.selectInterval(e.target);
-            calendar.emit('calendar.interval.click');
-            dialog.openDialog({ id: e.target.dataset.id });
+            calendar.emit('calendar.interval.click', e.target);
         }
         else if (e.target.classList.contains('calendar-cell')) {
-            calendar.emit('calendar.cell.click')
-            if (dialog.dialog.classList.contains('hidden')) {
-                dialog.openDialog({ startDate: parseISO(e.target.dataset.date) });
-            } else {
-                calendar.deselectAllIntervals();
-                dialog.closeDialog();
-            }
+            calendar.emit('calendar.cell.click', e.target);
         }
     }
     calendar.element.addEventListener('click', handleClick);
