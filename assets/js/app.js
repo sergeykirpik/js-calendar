@@ -12,7 +12,7 @@ import { setupEvents } from './document_events';
 
 import { showMessage } from './message';
 import CalendarHeading from './calendar_heading';
-import { parseISO } from './date_utils';
+import { parseISO, dateDiffHuman } from './date_utils';
 
 const eventEmitter = new EventEmitter();
 const apiService = new ApiService(eventEmitter);
@@ -66,6 +66,24 @@ setupEvents({dialog, eventEmitter, calendar});
 calendarModel.setCurrentMonth(new Date());
 
 
+function handleTimeout() {
+    calendar.element_.querySelectorAll('.calendar-interval').forEach(el => {
+        const startDate = parseISO(el.dataset.startDate);
+        const endDate = parseISO(el.dataset.endDate);
+        const now = Date.now();
+        let status = '';
+        if (now > endDate.getTime()) {
+            status = '[ done ]';
+        } else if (now >= startDate.getTime() && now <= endDate.getTime()) {
+            status = '[ in-progress ]';
+        } else if (now < endDate.getTime()) {
+            status = `[ starts in  ${dateDiffHuman(new Date(now), startDate)}]`;
+        }
+        el.querySelector('.status-label').textContent = status;
+    });
+    setTimeout(handleTimeout, 1000);
+}
+setTimeout(handleTimeout, 1000);
 
 
 

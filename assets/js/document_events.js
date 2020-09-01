@@ -89,14 +89,26 @@ function setupEvents({dialog, eventEmitter, calendar}) {
     }
 
     /** @param {MouseEvent} e */
-    const handleMouseDown = function(e) {
-        if (e.button !== 0) {
+    const handleMouseDown = function(evt) {
+        if (evt.button !== 0) {
             return;
         }
         itWasDragAndDrop = false;
         itWasResize = false;
+
+        const e = {
+            target: evt.target,
+            clientX: evt.clientX,
+            clientY: evt.clientY,
+        };
+        if (e.target.parentElement.classList.contains('calendar-interval')) {
+            e.target = e.target.parentElement;
+        }
         if (e.target.classList.contains('calendar-interval')) {
+            console.log('mousedown');
             const rect = e.target.getBoundingClientRect();
+            e.offsetX = e.clientX - rect.x;
+            e.offsetY = e.clientY - rect.y;
             lastMouseDownEvent = e;
             if (rect.width - e.offsetX < RESIZE_OFFSET) {
                 document.addEventListener('mousemove', doResizing);
@@ -109,9 +121,16 @@ function setupEvents({dialog, eventEmitter, calendar}) {
     }
     document.addEventListener('mousedown', handleMouseDown);
 
-    const handleClick = function(e) {
+    const handleClick = function(evt) {
+        console.log('click');
         if (itWasDragAndDrop || itWasResize) {
             return;
+        }
+        const e = {
+            target: evt.target,
+        };
+        if (e.target.parentElement.classList.contains('calendar-interval')) {
+            e.target = e.target.parentElement;
         }
         if (e.target.classList.contains('calendar-interval')) {
             calendar.selectInterval(e.target);
@@ -130,7 +149,7 @@ function setupEvents({dialog, eventEmitter, calendar}) {
 
     const handleMouseMove = function(e) {
         if (e.target.classList.contains('calendar-interval')) {
-            e.target.style.cursor = 'pointer';
+                e.target.style.cursor = 'pointer';
 
             const rect = e.target.getBoundingClientRect();
             if (rect.width - e.offsetX < RESIZE_OFFSET) {

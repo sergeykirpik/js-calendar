@@ -102,6 +102,7 @@ class Dialog {
             startDate: new Date(formData.get('startDate') + 'T' + formData.get('startTime')),
             endDate: new Date(formData.get('endDate') + 'T' + formData.get('endTime')),
             color: formData.get('color'),
+            isCanceled: false,
         };
 
         if (this.currentId) {

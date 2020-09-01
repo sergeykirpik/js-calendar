@@ -4,7 +4,7 @@ import {
     addDays,
     isToday,
     toLocalISODate,
-    diffInDays,
+    dateDiffInDays,
     toLocalISODateAndTime,
 } from './date_utils';
 
@@ -157,7 +157,11 @@ Calendar.prototype.updateInterval = function(data) {
         el.classList.add('locked');
     }
     el.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
-    el.textContent = data['title'] || 'Untitled event';
+    // refactor this
+    el.innerHTML = `
+        <span class="status-label">[ starts in: 0:00:00 ]</span>
+        <span class="title-label">${ data['title'] || 'Untitled event' }</span>
+    `;
     el.dataset.id = data['id'];
     el.dataset.startDate = toLocalISODateAndTime(data['startDate']);
     el.dataset.endDate = toLocalISODateAndTime(data['endDate']);
@@ -242,7 +246,7 @@ Calendar.prototype.indexesFromJson = function(data) {
  * @param {Date} date
  */
 Calendar.prototype.cellIndexFromDate = function(date) {
-    return diffInDays(this.model_.getMinDate(), date);
+    return dateDiffInDays(this.model_.getMinDate(), date);
 }
 
 export default Calendar;

@@ -5,8 +5,23 @@ const ONE_DAY_MS = 8.64e+7;
  * @param {Date} date1
  * @param {Date} date2
  */
-function diffInDays(date1, date2) {
+function dateDiffInDays(date1, date2) {
     return Math.floor((date2.getTime() - date1.getTime()) / ONE_DAY_MS);
+}
+
+/**
+ *
+ * @param {Date} date1
+ * @param {Date} date2
+ */
+function dateDiffHuman(date1, date2, format='H:M:S') {
+    let diffInSec = Math.floor((date2.getTime() - date1.getTime()) / 1000);
+    const hours = Math.floor(diffInSec / 3600);
+    diffInSec -= hours * 3600;
+    const minutes = Math.floor(diffInSec / 60);
+    const seconds = diffInSec - minutes * 60;
+
+    return `${hours}:${padWithZero(minutes)}:${padWithZero(seconds)}`;
 }
 
 function addDays(date, days) {
@@ -107,7 +122,7 @@ function parseISO(dateTimeString) {
 }
 
 export {
-    startOfMonth, startOfNextMonth, addDays, isToday, diffInDays,
+    startOfMonth, startOfNextMonth, addDays, isToday, dateDiffInDays, dateDiffHuman,
     padWithZero, toLocalISODate, toLocalISOTime, toLocalISODateAndTime, toLocalISOTimeWithoutSeconds,
     parseISO
 };

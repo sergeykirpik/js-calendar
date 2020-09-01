@@ -38,11 +38,6 @@ class Event
     private $description;
 
     /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private $status;
-
-    /**
      * @ORM\Column(type="string", length=7)
      */
     private $color;
@@ -51,6 +46,11 @@ class Event
      * @ORM\Column(type="string", length=180)
      */
     private $author;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isCanceled;
 
     public function getId(): ?int
     {
@@ -77,18 +77,6 @@ class Event
     public function setDescription(string $description): self
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status): self
-    {
-        $this->status = $status;
 
         return $this;
     }
@@ -137,6 +125,18 @@ class Event
     public function setEndDate(\DateTimeInterface $endDate): self
     {
         $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    public function getIsCanceled(): ?bool
+    {
+        return $this->isCanceled;
+    }
+
+    public function setIsCanceled(bool $isCanceled): self
+    {
+        $this->isCanceled = $isCanceled;
 
         return $this;
     }

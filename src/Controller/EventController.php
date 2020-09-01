@@ -22,7 +22,7 @@ class EventController extends AbstractController
     {
         $startDate = new DateTime($request->query->get('startDate'));
         $endDate = new DateTime($request->query->get('endDate'));
-        dump($startDate, $endDate);
+
         return $this->json([ 'data' => $eventRepository->findByStartDateRange($startDate, $endDate) ]);
     }
 
@@ -40,7 +40,7 @@ class EventController extends AbstractController
         $event->setStartDate(new DateTime($data['startDate']));
         $event->setEndDate(new DateTime($data['endDate']));
         $event->setColor($data['color']);
-        $event->setStatus('new');
+        $event->setIsCanceled($data['isCanceled']);
 
         $em->persist($event);
         $em->flush();
@@ -87,6 +87,9 @@ class EventController extends AbstractController
         }
         if (array_key_exists('endDate', $data)) {
             $event->setEndDate(new DateTime($data['endDate']));
+        }
+        if (array_key_exists('isCanceled', $data)) {
+            $event->setIsCanceled($data['isCanceled']);
         }
 
         $this->getDoctrine()->getManager()->flush();
