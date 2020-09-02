@@ -35,6 +35,7 @@ class Dialog extends EventEmitter {
 
         this.btnActivate = this.dialog.querySelector('.btn-activate-event');
         this.btnCancel = this.dialog.querySelector('.btn-cancel-event');
+        this.btnDelete = this.dialog.querySelector('.btn-delete');
 
         this.hideOnTransitionComplete = this.hideOnTransitionComplete.bind(this);
         this.openDialog = this.openDialog.bind(this);
@@ -80,6 +81,7 @@ class Dialog extends EventEmitter {
             title = 'Create new event'
             status = '[ new ]';
         }
+        setVisibility(this.btnDelete, !!data['id']);
 
         this.dialog.querySelector('.status').textContent = title;
 

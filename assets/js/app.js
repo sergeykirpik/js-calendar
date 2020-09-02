@@ -80,10 +80,17 @@ calendarModel.setCurrentMonth(new Date());
 setupLiveStatusUpdate(calendar);
 
 function setupLiveCalendarUpdate(calendar, initialData) {
+
+    const UPDATE_TIMEOUT = 1000;
+
     let oldData = {};
     initialData.forEach(event => oldData[event.id] = event);
 
     function handleTimeout() {
+        if (!calendar.updatesAllowed()) {
+            setTimeout(handleTimeout, UPDATE_TIMEOUT);
+            return;
+        }
         apiService.getAllEvents({
             startDate: calendarModel.getMinDate(),
             endDate: calendarModel.getMaxDate(),
@@ -116,9 +123,9 @@ function setupLiveCalendarUpdate(calendar, initialData) {
                 }
             })
         })
-        .then(() => setTimeout(handleTimeout, 5000));
+        .then(() => setTimeout(handleTimeout, UPDATE_TIMEOUT));
     }
-    setTimeout(handleTimeout, 5000);
+    setTimeout(handleTimeout, UPDATE_TIMEOUT);
 }
 
 apiService.getAllEvents({
@@ -127,8 +134,3 @@ apiService.getAllEvents({
 })
 .then(data => setupLiveCalendarUpdate(calendar, data));
 
-
-// window.addEventListener('error', e => {
-//     showMessage(e.message);
-//     e.preventDefault();
-// });

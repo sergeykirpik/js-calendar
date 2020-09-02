@@ -33,6 +33,8 @@ class Calendar extends EventEmitter {
         /** @type Element */
         this.element = element || die('parameter element is required');
 
+        this.lockUpdates = false;
+
         this.render = this.render.bind(this);
         this.updateInterval = this.updateInterval.bind(this);
         this.removeInterval = this.removeInterval.bind(this);
@@ -41,6 +43,10 @@ class Calendar extends EventEmitter {
 
         this.setupEvents();
     }
+}
+
+Calendar.prototype.updatesAllowed = function() {
+    return !this.lockUpdates;
 }
 
 Calendar.prototype.render = function(data) {
@@ -134,6 +140,9 @@ Calendar.prototype.findInterval = function(dataId) {
 }
 
 Calendar.prototype.updateInterval = function(data) {
+    if (this.lockUpdates) {
+        return;
+    }
     const cells = this.element.querySelectorAll('.calendar-cell');
     const curr = this.indexesFromJson(data);
     const cell = cells[curr.startIdx];
@@ -178,6 +187,9 @@ Calendar.prototype.updateInterval = function(data) {
 }
 
 Calendar.prototype.removeInterval = function(id) {
+    if (this.lockUpdates) {
+        return;
+    }
     const el = this.findInterval(id);
     if (el) {
         const row = this.getIntervalParentRow(el);
@@ -276,6 +288,7 @@ Calendar.prototype.setupEvents = function() {
         document.removeEventListener('mousemove', handleDrag);
         document.removeEventListener('mouseup', handleDrop);
 
+        calendar.lockUpdates = false;
         const itWasDragAndDrop =
             e.clientX !== lastMouseDownEvent.clientX
             || e.clientY !== lastMouseDownEvent.clientY
@@ -283,10 +296,15 @@ Calendar.prototype.setupEvents = function() {
 
         if (itWasDragAndDrop) {
             const el = lastMouseDownEvent.target;
+            const oldParentRow = calendar.getIntervalParentRow(el);
             destinationParent.appendChild(el);
             el.classList.remove('dragging');
-            //TODO: refactor this
-            calendar.fixAllIntervalsInRow(calendar.getIntervalParentRow(el));
+            const newParentRow = calendar.getIntervalParentRow(el);
+            calendar.fixAllIntervalsInRow(newParentRow);
+            if (oldParentRow !== newParentRow) {
+                calendar.fixAllIntervalsInRow(oldParentRow);
+            }
+
             lastMouseDownEvent = null;
             const parentCell = destinationParent.parentElement;
 
@@ -316,6 +334,8 @@ Calendar.prototype.setupEvents = function() {
     const stopResizing = function (e) {
         document.removeEventListener('mousemove', doResizing);
         document.removeEventListener('mouseup', stopResizing);
+
+        calendar.lockUpdates = false;
         const el = lastMouseDownEvent.target;
         const endDate = parseISO(el.dataset.endDate);
         const newEndDate = parseISO(destinationParent.parentElement.dataset.date);
@@ -356,6 +376,7 @@ Calendar.prototype.setupEvents = function() {
                 document.addEventListener('mousemove', handleDrag);
                 document.addEventListener('mouseup', handleDrop);
             }
+            calendar.lockUpdates = true;
         }
     }
     calendar.element.addEventListener('mousedown', handleMouseDown);
