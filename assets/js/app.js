@@ -79,6 +79,54 @@ calendarModel.setCurrentMonth(new Date());
 
 setupLiveStatusUpdate(calendar);
 
+function setupLiveCalendarUpdate(calendar, initialData) {
+    let oldData = {};
+    initialData.forEach(event => oldData[event.id] = event);
+
+    function handleTimeout() {
+        apiService.getAllEvents({
+            startDate: calendarModel.getMinDate(),
+            endDate: calendarModel.getMaxDate(),
+        })
+        .then(events => {
+            let currentData = {};
+            events.map(event => {
+                let needUpdate = true;
+                let oldEvent = oldData[event.id];
+                if (oldEvent) {
+                    needUpdate =
+                           oldEvent['title'] !== event['title']
+                        || oldEvent['startDate'].getTime() !== event['startDate'].getTime()
+                        || oldEvent['endDate'].getTime() !== event['endDate'].getTime()
+                        || oldEvent['isCanceled'] !== event['isCanceled']
+                        || oldEvent['color'] !== event['color']
+                    ;
+                }
+                if (needUpdate) {
+                    console.log('update');
+                    calendar.updateInterval(event);
+                }
+                currentData[event.id] = event;
+                oldData[event.id] = event;
+            });
+            Object.keys(oldData).forEach(id => {
+                if (!currentData[id]) {
+                    calendar.removeInterval(id);
+                    delete oldData[id];
+                }
+            })
+        })
+        .then(() => setTimeout(handleTimeout, 5000));
+    }
+    setTimeout(handleTimeout, 5000);
+}
+
+apiService.getAllEvents({
+    startDate: calendarModel.getMinDate(),
+    endDate: calendarModel.getMaxDate(),
+})
+.then(data => setupLiveCalendarUpdate(calendar, data));
+
 
 // window.addEventListener('error', e => {
 //     showMessage(e.message);

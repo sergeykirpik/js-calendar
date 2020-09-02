@@ -34,6 +34,8 @@ function setupLiveStatusUpdate(calendar) {
             else if (isEventNew({ startDate })) {
                 if (dateDiffInDays(new Date(now), startDate) < 2) {
                     status = `[ starts in  ${dateDiffHuman(new Date(now), startDate)} ]`;
+                } else {
+                    status = '[ new ]';
                 }
             }
             el.querySelector('.status-label').textContent = status;

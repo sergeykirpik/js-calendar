@@ -153,7 +153,7 @@ Calendar.prototype.updateInterval = function(data) {
     el.style.marginTop = CALENDAR_INTERVAL_VGAP + 'px';
     // refactor this
     el.innerHTML = `
-        <span class="status-label"></span><br>
+        <span class="status-label">[ ]</span>
         <span class="title-label">${ data['title'] || 'Untitled event' }</span>
     `;
     el.dataset.id = data['id'];
