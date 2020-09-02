@@ -9,7 +9,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @IsGranted("ROLE_ADMIN")
@@ -17,16 +16,21 @@ use Symfony\Component\HttpFoundation\Response;
 class InvitationController extends AbstractController
 {
     /**
-     * @Route("/invite", name="app_invite")
+     * @Route("/invite", name="app_invite", methods={"GET","POST"})
      */
     public function generateInviteAction(Request $request, RegistrationService $registrationService)
     {
-        if ($request->isMethod('POST')) {
+        if ($request->isMethod('POST') && $registrationService->validateInvitationForm($request)) {
             $registrationService->sendInvite($request->get('email'));
 
-            return new Response('<body>Success!</body>');
+            return $this->render('invite/success.html.twig', [
+                'registration_link' => $registrationService->getLastRegistrationLink(),
+            ]);
         }
-        return $this->render('invite/new.html.twig');
+        return $this->render('invite/new.html.twig', [
+            'error' => [ 'message' => $registrationService->getLastValidationError() ],
+        ]);
     }
+
 
 }

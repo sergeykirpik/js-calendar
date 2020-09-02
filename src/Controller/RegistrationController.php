@@ -2,31 +2,31 @@
 
 namespace App\Controller;
 
-use App\Repository\InviteRepository;
 use App\Service\RegistrationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 
 class RegistrationController extends AbstractController
 {
     /**
-     * @Route("/registration", name="app_registration")
+     * @Route("/registration", name="app_registration", methods={"GET","POST"})
      */
-    public function registerAction(Request $request, RegistrationService $registrationService, InviteRepository $inviteRepository)
+    public function registerAction(
+        Request $request,
+        RegistrationService $registrationService
+    )
     {
-        $invite = $inviteRepository->findOneBy([
-            'email' => $request->query->get('username'),
-            'registrationCode' => $request->get('code'),
-            'redeemed' => false,
-        ]);
+        $invite = $registrationService->findAndVerifyInvite(
+            $request->query->get('username'),
+            $request->query->get('code')
+        );
 
-        if (!$invite) {
-            throw $this->createNotFoundException('Invite not found.');
-        }
-        //$registrationService->verifyInvite($invite);
-
-        if ($request->isMethod('POST')) {
+        if ($request->isMethod('POST') && $registrationService->validateRegistrationForm($request)) {
+            if (!$this->isCsrfTokenValid('register', $request->request->get('_csrf_token'))) {
+                throw new InvalidCsrfTokenException('Invalid token.');
+            }
             $plainPassword = $request->request->get('password');
             $registrationService->register($invite, $plainPassword);
 
@@ -35,6 +35,7 @@ class RegistrationController extends AbstractController
 
         return $this->render('registration/register.html.twig', [
             'email' => $invite->getEmail(),
+            'error' => [ 'message' => $registrationService->getLastValidationError() ],
         ]);
     }
 }

@@ -1,0 +1,9 @@
+{{ encore_entry_script_tags('message') }}
+{% if error %}
+	<script>
+		if ('{{ error.message }}') {
+			showMessage('{{ error.message }}');
+		}
+	</script>
+{% endif %}
+

@@ -3,6 +3,7 @@
 {% block title %}Registration!{% endblock %}
 
 {% block body %}
+    {% include 'utils/_show_message.html.twig' %}
     <div class="container">
         <h1>Welcome to Events Calendar!</h1>
         <div class="dialog">
@@ -10,6 +11,7 @@
             <div class="dialog-container">
                 <p>Your email: {{ email }}</p>
                 <form action="" method="post">
+                    <input type="hidden" name="_csrf_token" value={{ csrf_token('register') }}>
                     <div class="form-group mb1">
                         <label for="password">Enter your password:</label>
                         <input type="password" name="password" id="password">

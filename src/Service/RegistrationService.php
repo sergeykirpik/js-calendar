@@ -4,13 +4,16 @@ namespace App\Service;
 
 use App\Entity\Invite;
 use App\Entity\User;
+use App\Repository\InviteRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 
 class RegistrationService
@@ -20,6 +23,10 @@ class RegistrationService
     private $urlGenerator;
     private $em;
     private $passwordEncoder;
+    private $lastValidationError = '';
+    private $registrationLink = '';
+    private $userRepository;
+    private $inviteRepository;
 
     public function __construct(
         TokenGeneratorInterface $tokenGenerator,
@@ -27,7 +34,8 @@ class RegistrationService
         UrlGeneratorInterface $urlGenerator,
         EntityManagerInterface $em,
         UserPasswordEncoderInterface $passwordEncoder,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        InviteRepository $inviteRepository
     )
     {
         $this->tokenGenerator = $tokenGenerator;
@@ -35,7 +43,8 @@ class RegistrationService
         $this->urlGenerator = $urlGenerator;
         $this->em = $em;
         $this->passwordEncoder = $passwordEncoder;
-        $this->userRepo = $userRepository;
+        $this->userRepository = $userRepository;
+        $this->inviteRepository = $inviteRepository;
     }
 
     public function sendInvite(string $email)
@@ -49,8 +58,7 @@ class RegistrationService
         $this->em->persist($invite);
         $this->em->flush();
 
-
-        $registrationLink = $this->urlGenerator->generate(
+        $this->registrationLink = $this->urlGenerator->generate(
             'app_registration',
             [
                 'username' => $invite->getEmail(),
@@ -65,18 +73,10 @@ class RegistrationService
             ->html(sprintf('
                 <h1>Welcome to EventsCalendar!</h1>
                 <p>Here is your <a href="%s">invitation</a></p>
-            ', $registrationLink))
+            ', $this->registrationLink))
         ;
 
         $this->mailer->send($email);
-    }
-
-    public function verifyInvite(Invite $invite)
-    {
-        if (!$invite) {
-            throw new NotFoundHttpException('Sorry, but this page is does not exists');
-        }
-
     }
 
     public function register(Invite $invite, string $plainPassword)
@@ -90,5 +90,61 @@ class RegistrationService
         $this->em->persist($invite);
 
         $this->em->flush();
+    }
+
+    public function findAndVerifyInvite($email, $code): Invite
+    {
+        $user = $this->userRepository->findOneBy([ 'email' => $email ]);
+        if ($user) {
+            throw new AccessDeniedException('Already registered');
+        }
+        $invite = $this->inviteRepository->findOneBy([
+            'email' => $email,
+            'registrationCode' => $code,
+            'redeemed' => false,
+        ]);
+
+        if (!$invite) {
+            throw new NotFoundHttpException('Invite not found or already redeemed.');
+        }
+
+        return $invite;
+    }
+
+    public function getLastValidationError(): string
+    {
+        return $this->lastValidationError;
+    }
+
+    public function getLastRegistrationLink()
+    {
+        return $this->registrationLink;
+    }
+
+    public function validateRegistrationForm(Request $request): bool
+    {
+        $password = $request->request->get('password');
+        $password2 = $request->request->get('password2');
+
+        if (mb_strlen($password) < 6) {
+            $this->lastValidationError = 'Password too short. Must be at least 6 chars.';
+            return false;
+        }
+        if ($password !== $password2) {
+            $this->lastValidationError = 'Passwords do not match.';
+            return false;
+        }
+        return true;
+    }
+
+    public function validateInvitationForm(Request $request): bool
+    {
+        $email = $request->request->get('email');
+        $user = $this->userRepository->findOneBy([ 'email' => $email ]);
+        if ($user) {
+            $this->lastValidationError = 'User already registered!';
+            return false;
+        }
+        return true;
     }
 }

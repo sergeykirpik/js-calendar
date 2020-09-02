@@ -78,7 +78,7 @@ class Invite
         return $this;
     }
 
-    public function getRedeemed(): ?bool
+    public function isRedeemed(): ?bool
     {
         return $this->redeemed;
     }

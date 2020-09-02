@@ -6,7 +6,7 @@
     {{ encore_entry_script_tags('message') }}
     {% if error %}
         <script>
-            showMessage({{ error.message }});
+            showMessage('{{ error.message }}');
         </script>
         {# <div>{{ error.message }}</div> #}
     {% endif %}
