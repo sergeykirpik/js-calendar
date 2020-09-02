@@ -6,4 +6,6 @@ function showMessage(text) {
     setTimeout(() => el.remove(), 4000);
 }
 
+window.showMessage = showMessage;
+
 export { showMessage };

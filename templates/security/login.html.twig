@@ -3,8 +3,12 @@
 {% block title %}Login!{% endblock %}
 
 {% block body %}
+    {{ encore_entry_script_tags('message') }}
     {% if error %}
-        <div>{{ error.message }}</div>
+        <script>
+            showMessage({{ error.message }});
+        </script>
+        {# <div>{{ error.message }}</div> #}
     {% endif %}
 
     <div class="container center-content">
@@ -30,3 +34,4 @@
     </div>
 
 {% endblock %}
+
