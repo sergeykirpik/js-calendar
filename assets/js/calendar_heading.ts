@@ -1,8 +1,8 @@
-import { die } from './utils';
-import CalendarModel from './calendar_model';
+import { die } from './utils.ts';
+import CalendarModel from './calendar_model.ts';
 
 class CalendarHeading {
-  constructor({ element, model }) {
+  constructor({ element, model }: { element: Element, model: CalendarModel }) {
     this.element = element || die('parameter element is required');
     this.model = model || new CalendarModel();
 
@@ -12,15 +12,15 @@ class CalendarHeading {
     this.setupEvents();
   }
 
-  handleNextMonthClick() {
+  handleNextMonthClick(): void {
     this.model.nextMonth();
   }
 
-  handlePrevMonthClick() {
+  handlePrevMonthClick(): void {
     this.model.prevMonth();
   }
 
-  setupEvents() {
+  setupEvents(): void {
     this.element.querySelector('.btn-next-month')
       .addEventListener('click', this.handleNextMonthClick);
     this.element.querySelector('.btn-prev-month')

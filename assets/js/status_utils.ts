@@ -1,19 +1,20 @@
 import { parseISO, dateDiffHuman, dateDiffInDays } from './date_utils';
+import Calendar from './calendar.ts';
 
-function isEventInProgress({ startDate, endDate }) {
+function isEventInProgress({ startDate, endDate }: { startDate: Date, endDate: Date }): boolean {
   const now = Date.now();
   return (now >= startDate && now <= endDate);
 }
 
-function isEventDone({ endDate }) {
+function isEventDone({ endDate }: { endDate: Date }): boolean {
   return (Date.now() > endDate.getTime());
 }
 
-function isEventNew({ startDate }) {
+function isEventNew({ startDate }: { startDate: Date }): boolean {
   return (Date.now() < startDate);
 }
 
-function setupLiveStatusUpdate(calendar) {
+function setupLiveStatusUpdate(calendar: Calendar): void {
   function handleTimeout() {
     calendar.element.querySelectorAll('.calendar-interval').forEach((el) => {
       const startDate = parseISO(el.dataset.startDate);

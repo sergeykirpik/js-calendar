@@ -1,4 +1,4 @@
-function showMessage(text) {
+function showMessage(text: string): void {
   const el = document.createElement('div');
   el.className = 'message';
   el.textContent = text;

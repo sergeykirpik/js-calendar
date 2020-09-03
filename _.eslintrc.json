@@ -1,0 +1,18 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "env": {
+      "browser": true
+  },
+  "extends": [
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "no-param-reassign": [2, { "props": false }]
+  },
+  "plugins": [
+    "import",
+    "@typescript-eslint/eslint-plugin"
+  ]
+}

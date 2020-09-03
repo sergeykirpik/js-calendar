@@ -3,7 +3,7 @@ export default class EventEmitter {
     this.handlers = {};
   }
 
-  subscribe(evt, handler) {
+  subscribe(evt: string, handler: () => void): () => void {
     if (this.handlers[evt]) {
       this.handlers[evt].push(handler);
     } else {
@@ -14,7 +14,7 @@ export default class EventEmitter {
     };
   }
 
-  emit(evt, data = {}) {
+  emit(evt: string, data: unknown = {}): void {
     // console.log(`emit: [${evt}]`);
     if (this.handlers[evt]) {
       this.handlers[evt].forEach((handler) => handler(data));

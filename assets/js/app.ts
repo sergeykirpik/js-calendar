@@ -2,20 +2,20 @@ import '../css/app.css';
 import '../css/dialog.css';
 import '../css/message.css';
 
-import Calendar from './calendar';
-import CalendarModel from './calendar_model';
-import Dialog from './dialog';
-import ApiService from './api';
+import Calendar from './calendar.ts';
+import CalendarModel from './calendar_model.ts';
+import Dialog from './dialog.ts';
+import ApiService from './api.ts';
 
-import CalendarHeading from './calendar_heading';
-import { parseISO } from './date_utils';
-import { setupLiveStatusUpdate } from './status_utils';
+import CalendarHeading from './calendar_heading.ts';
+import { parseISO } from './date_utils.ts';
+import { setupLiveStatusUpdate } from './status_utils.ts';
 
 const apiService = new ApiService();
 
 const calendarModel = new CalendarModel();
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const calendarHeading = new CalendarHeading({
   element: document.querySelector('.calendar-heading-wrapper'),
   model: calendarModel,

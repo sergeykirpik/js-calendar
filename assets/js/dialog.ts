@@ -1,10 +1,11 @@
-import { setElementColor } from './color_utils';
-import { toLocalISODate, toLocalISOTimeWithoutSeconds } from './date_utils';
-import EventEmitter from './emitter';
+import { setElementColor } from './color_utils.ts';
+import { toLocalISODate, toLocalISOTimeWithoutSeconds } from './date_utils.ts';
+import EventEmitter from './emitter.ts';
 
-import { die, makeDraggable } from './utils';
+import { die, makeDraggable } from './utils.ts';
 
-import { isEventNew, isEventInProgress, isEventDone } from './status_utils';
+import { isEventNew, isEventInProgress, isEventDone } from './status_utils.ts';
+import ApiService from './api.ts';
 
 function setVisibility(el, shown = false) {
   el.classList.toggle('d-none', !shown);
@@ -24,7 +25,7 @@ class Dialog extends EventEmitter {
      * @param {Element} dialog
      * @param {ApiService} api
      */
-  constructor({ element, api }) {
+  constructor({ element, api }: { element: Element, api: ApiService }) {
     super();
 
     this.currentId = null;
@@ -49,11 +50,11 @@ class Dialog extends EventEmitter {
     this.setupDialogEvents();
   }
 
-  fireEvent(evt, data) {
+  fireEvent(evt: string, data: unknown): void {
     this.emit(evt, data);
   }
 
-  fillDialog(data) {
+  fillDialog(data: EventPatch): void {
     let title = '';
     let status = '';
 
@@ -97,7 +98,7 @@ class Dialog extends EventEmitter {
     form.author.value = data.author;
   }
 
-  openDialog({ id, startDate, endDate }) {
+  openDialog({ id, startDate, endDate }: { id: string, startDate: Date, endDate: Date }): void {
     this.currentId = id;
     this.dialog.querySelector('.status').textContent = '';
     hide(this.btnCancel);
@@ -123,14 +124,14 @@ class Dialog extends EventEmitter {
     }
   }
 
-  hideOnTransitionComplete(e) {
+  hideOnTransitionComplete(e: TransitionEvent): void {
     if (e.target.classList.contains('dialog')) {
       e.target.removeEventListener('transitionend', this.hideOnTransitionComplete);
       e.target.classList.add('hidden');
     }
   }
 
-  closeDialog() {
+  closeDialog(): void {
     this.currentId = null;
     const { dialog } = this;
     if (dialog && !dialog.classList.contains('transparent')) {
@@ -140,11 +141,11 @@ class Dialog extends EventEmitter {
     this.fireEvent('dialog.close');
   }
 
-  isHidden() {
+  isHidden(): boolean {
     return this.dialog.classList.contains('hidden');
   }
 
-  handleSubmit(e) {
+  handleSubmit(e: Event): void {
     e.preventDefault();
     const formData = new FormData(e.target);
 
@@ -165,26 +166,26 @@ class Dialog extends EventEmitter {
     this.closeDialog();
   }
 
-  handleColorChange(e) {
+  handleColorChange(e: Event): void {
     setElementColor(this.dialog.querySelector('.color-swatch'), e.target.value);
   }
 
-  handleDelete() {
+  handleDelete(): void {
     this.api.deleteEvent(this.currentId);
     this.closeDialog();
   }
 
-  handleCancel() {
+  handleCancel(): void {
     this.api.patchEvent(this.currentId, { isCanceled: true });
     this.closeDialog();
   }
 
-  handleActivate() {
+  handleActivate(): void {
     this.api.patchEvent(this.currentId, { isCanceled: false });
     this.closeDialog();
   }
 
-  setupDialogEvents() {
+  setupDialogEvents(): void {
     makeDraggable(this.dialog);
 
     this.dialog.querySelector('.btn-close').addEventListener('click', this.closeDialog);

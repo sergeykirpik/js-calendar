@@ -1,6 +1,3 @@
-/* eslint-disable no-unused-expressions */
-/* eslint-disable func-names */
-/* eslint-disable no-plusplus */
 import {
   startOfMonth,
   startOfNextMonth,
@@ -10,24 +7,20 @@ import {
   dateDiffInDays,
   toLocalISODateAndTime,
   parseISO,
-} from './date_utils';
+} from './date_utils.ts';
 
 import {
   setElementColor,
-} from './color_utils';
-import CalendarModel from './calendar_model';
-import { die, inRange, currentUser } from './utils';
-import EventEmitter from './emitter';
+} from './color_utils.ts';
+import CalendarModel from './calendar_model.ts';
+import { die, inRange, currentUser } from './utils.ts';
+import EventEmitter from './emitter.ts';
 
 const CALENDAR_INTERVAL_VGAP = 2;
 const RESIZE_OFFSET = 10;
 
 class Calendar extends EventEmitter {
-  /**
-     *
-     * @param {{model: CalendarModel, element: Element}} params
-     */
-  constructor({ model, element }) {
+  constructor({ model, element }: { model: CalendarModel, element: Element }) {
     super();
 
     /** @type CalendarModel */
@@ -265,7 +258,7 @@ Calendar.prototype.setupEvents = function () {
   let itWasDragAndDrop = false;
   let itWasResize = false;
 
-  const calendar = this;
+  //const calendar = this;
 
   /** @param {MouseEvent} e */
   const handleDrag = function (e) {

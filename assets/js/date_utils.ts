@@ -1,24 +1,14 @@
 const ONE_DAY_MS = 8.64e+7;
 
-/**
- *
- * @param {Date} date1
- * @param {Date} date2
- */
-function dateDiffInDays(date1, date2) {
+function dateDiffInDays(date1: Date, date2: Date): number {
   return Math.floor((date2.getTime() - date1.getTime()) / ONE_DAY_MS);
 }
 
-function padWithZero(number) {
-  return number < 10 ? `0${number}` : `${number}`;
+function padWithZero(value: number): string {
+  return value < 10 ? `0${value}` : `${value}`;
 }
 
-/**
- *
- * @param {Date} date1
- * @param {Date} date2
- */
-function dateDiffHuman(date1, date2) {
+function dateDiffHuman(date1: Date, date2: Date): string {
   let diffInSec = Math.floor((date2.getTime() - date1.getTime()) / 1000);
   const hours = Math.floor(diffInSec / 3600);
   diffInSec -= hours * 3600;
@@ -28,46 +18,30 @@ function dateDiffHuman(date1, date2) {
   return `${hours}:${padWithZero(minutes)}:${padWithZero(seconds)}`;
 }
 
-function addDays(date, days) {
+function addDays(date: Date, days: number): Date {
   return new Date(date.getTime() + ONE_DAY_MS * days);
 }
 
-/**
- *
- * @param {Date} date
- */
-function startOfMonth(date) {
+function startOfMonth(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
-/**
- *
- * @param {Date} date
- */
-function startOfNextMonth(date) {
+function startOfNextMonth(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth() + 1, 1);
 }
 
-/**
- *
- * @param {Date} date
- */
-function startOfDay(date) {
+function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-/**
- *
- * @param {Date} date
- */
-function isToday(date) {
+function isToday(date: Date): boolean {
   const currentDate = new Date();
   return date.getFullYear() === currentDate.getFullYear()
         && date.getMonth() === currentDate.getMonth()
         && date.getDate() === currentDate.getDate();
 }
 
-function toLocalISODate(pDate) {
+function toLocalISODate(pDate: Date|string): string {
   let date = pDate;
   if (!(date instanceof Date)) {
     date = new Date(date);
@@ -79,11 +53,7 @@ function toLocalISODate(pDate) {
   return `${year}-${month}-${day}`;
 }
 
-/**
- *
- * @param {Date|string} date
- */
-function toLocalISOTime(pDate) {
+function toLocalISOTime(pDate: Date|string): string {
   let date = pDate;
   if (!(date instanceof Date)) {
     date = new Date(date);
@@ -99,7 +69,7 @@ function toLocalISOTime(pDate) {
  *
  * @param {Date|string} date
  */
-function toLocalISOTimeWithoutSeconds(pDate) {
+function toLocalISOTimeWithoutSeconds(pDate: Date|string): string {
   let date = pDate;
   if (!(date instanceof Date)) {
     date = new Date(date);
@@ -110,11 +80,11 @@ function toLocalISOTimeWithoutSeconds(pDate) {
   return `${hours}:${minutes}`;
 }
 
-function toLocalISODateAndTime(date) {
+function toLocalISODateAndTime(date: Date|string): string {
   return `${toLocalISODate(date)}T${toLocalISOTime(date)}`;
 }
 
-function parseISO(dateTimeString) {
+function parseISO(dateTimeString: string): Date {
   const [dateString, timeString = '00:00:00'] = dateTimeString.split('.')[0].split('T');
   const [year, month, date] = dateString.split('-');
   const [hours, minutes, seconds] = timeString.split(':');

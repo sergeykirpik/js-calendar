@@ -12,7 +12,7 @@ function colorBrightness(hexColor) {
   return Math.round((299 * r + 587 * g + 114 * b) / 1000);
 }
 
-function setElementColor(el, color) {
+function setElementColor(el: Element, color: string): void {
   el.style.background = makeGradient(color);
   if (color && colorBrightness(color) <= 125) {
     el.style.color = 'white';

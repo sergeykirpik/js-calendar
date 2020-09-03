@@ -1,20 +1,22 @@
 {
-  "root": true,
-  "parser": "@typescript-eslint/parser",
-  "env": {
-      "browser": true
-  },
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
-    "airbnb-base"
-  ],
-  "rules": {
-    "no-param-reassign": [2, { "props": false }]
-  },
-  "plugins": [
-    "import",
-    "@typescript-eslint/eslint-plugin"
-  ]
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "semi": "error",
+        "strict": "error"
+    }
 }

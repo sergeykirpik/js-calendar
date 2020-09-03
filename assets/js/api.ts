@@ -1,20 +1,31 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable class-methods-use-this */
-import { die } from './utils';
-import { showMessage } from './message';
-import DataConverter from './data_converter';
-import EventEmitter from './emitter';
+import { die } from './utils.ts';
+import { showMessage } from './message.ts';
+import DataConverter from './data_converter.ts';
+import EventEmitter from './emitter.ts';
 
-const GET = 'get';
-const POST = 'post';
-const PATCH = 'patch';
-const DELETE = 'delete';
+enum HTTPMethod {
+  GET = 'get',
+  POST = 'post',
+  PATCH = 'patch',
+  DELETE = 'delete'
+}
+
+interface CalendarPatch {
+  id: string,
+}
+
+interface CalendarEvent {
+  id: string,
+}
 
 class ApiService extends EventEmitter {
-  http(method, endpoint, data = {}) {
+  http(method: HTTPMethod, endpoint: string, data = {}): void {
     const headers = { 'Content-Type': 'application/json' };
-    const options = { method, headers };
-    if (method !== GET) {
+    const options: RequestInit = { method, headers };
+    if (method !== HTTPMethod.GET) {
       options.body = JSON.stringify(data);
     }
     return fetch(endpoint, options)
@@ -41,33 +52,35 @@ class ApiService extends EventEmitter {
       });
   }
 
-  getEvent(id) {
-    return this.http(GET, `/api/events/${id}`).then(DataConverter.eventFromJSON);
+  getEvent(id: string): Promise {
+    return this.http(HTTPMethod.GET, `/api/events/${id}`).then(DataConverter.eventFromJSON);
   }
 
-  patchEvent(id, body) {
-    return this.http(PATCH, `/api/events/${id}`, body)
+  patchEvent(id: string, body: CalendarPatch): Promise {
+    return this.http(HTTPMethod.PATCH, `/api/events/${id}`, body)
       .then(DataConverter.eventFromJSON)
       .then((data) => this.emit('api.patch.event', data))
       .catch((error) => this.emit('api.patch.event.error', { id, error }));
   }
 
-  postEvent(body) {
-    return this.http(POST, '/api/events/', body)
+  postEvent(body: CalendarEvent): Promise {
+    return this.http(HTTPMethod.POST, '/api/events/', body)
       .then(DataConverter.eventFromJSON)
       .then((data) => this.emit('api.post.event', data));
   }
 
-  deleteEvent(id) {
+  deleteEvent(id: string): Promise {
     id || die('Invalid id');
-    return this.http(DELETE, `/api/events/${id}`)
+    return this.http(HTTPMethod.DELETE, `/api/events/${id}`)
       .then(() => this.emit('api.delete.event', id));
   }
 
-  getAllEvents({ startDate, endDate }) {
+  getAllEvents(
+    { startDate, endDate }: { startDate: Date, endDate: Date },
+  ): Promise {
     const qStartDate = startDate ? startDate.toJSON() : '';
     const qEndDate = endDate ? endDate.toJSON() : '';
-    return this.http(GET, `/api/events/?startDate=${qStartDate}&endDate=${qEndDate}`)
+    return this.http(HTTPMethod.GET, `/api/events/?startDate=${qStartDate}&endDate=${qEndDate}`)
       .then(DataConverter.eventsFromJSON);
   }
 }
