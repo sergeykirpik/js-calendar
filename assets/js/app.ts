@@ -10,6 +10,7 @@ import ApiService from './api';
 import CalendarHeading from './calendar_heading';
 import { parseISO } from './date_utils';
 import { setupLiveStatusUpdate } from './status_utils';
+import CalendarEvent from './model/calendar_event';
 
 const apiService = new ApiService();
 
@@ -33,7 +34,7 @@ const calendar = new Calendar({
 
 dialog.subscribe('dialog.close', calendar.deselectAllIntervals);
 
-calendar.subscribe('interval.drop', (el) => {
+calendar.subscribe('interval.drop', (el: HTMLElement) => {
   apiService.patchEvent(el.dataset.id, {
     startDate: parseISO(el.dataset.startDate),
     endDate: parseISO(el.dataset.endDate),
@@ -46,11 +47,11 @@ calendar.subscribe('interval.resize', (el) => {
   });
 });
 
-calendar.subscribe('calendar.interval.click', (el) => {
+calendar.subscribe('calendar.interval.click', (el: HTMLElement) => {
   dialog.openDialog({ id: el.dataset.id });
 });
 
-calendar.subscribe('calendar.cell.click', (el) => {
+calendar.subscribe('calendar.cell.click', (el: HTMLElement) => {
   if (dialog.isHidden()) {
     dialog.openDialog({ startDate: parseISO(el.dataset.date) });
   } else {
@@ -80,7 +81,7 @@ calendarModel.setCurrentMonth(new Date());
 setupLiveStatusUpdate(calendar);
 
 // eslint-disable-next-line no-shadow
-function setupLiveCalendarUpdate(calendar, initialData) {
+function setupLiveCalendarUpdate(calendar: Calendar, initialData: CalendarEvent[]) {
   const UPDATE_TIMEOUT = 1000;
 
   const oldData = {};

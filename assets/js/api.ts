@@ -66,7 +66,7 @@ class ApiService extends EventEmitter {
 
     getAllEvents(
         { startDate, endDate }: { startDate: Date, endDate: Date },
-    ): Promise<unknown> {
+    ): Promise<Array<CalendarEvent>> {
         const qStartDate = startDate ? startDate.toJSON() : '';
         const qEndDate = endDate ? endDate.toJSON() : '';
         return this.http(HTTPMethod.GET, `/api/events/?startDate=${qStartDate}&endDate=${qEndDate}`)

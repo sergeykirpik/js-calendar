@@ -6,7 +6,6 @@ function showMessage(text: string): void {
   setTimeout(() => el.remove(), 4000);
 }
 
-window.showMessage = showMessage;
+window['showMessage'] = showMessage;
 
-// eslint-disable-next-line import/prefer-default-export
 export { showMessage };

@@ -1,9 +1,10 @@
 export default class EventEmitter {
+  handlers: Record<string, Array<(payload: unknown) => void>>;
   constructor() {
     this.handlers = {};
   }
 
-  subscribe(evt: string, handler: () => void): () => void {
+  subscribe(evt: string, handler: (unknown) => void): () => void {
     if (this.handlers[evt]) {
       this.handlers[evt].push(handler);
     } else {

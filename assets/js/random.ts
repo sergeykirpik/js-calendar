@@ -1,4 +1,4 @@
-import { padWithZero } from './date_utils.ts';
+import { padWithZero } from './date_utils';
 
 function randomInt(min: number, max: number): number {
   // random number from min to (max+1)

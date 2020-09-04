@@ -2,7 +2,7 @@ import { setElementColor } from './color_utils';
 import { toLocalISODate, toLocalISOTimeWithoutSeconds } from './date_utils';
 import EventEmitter from './emitter';
 
-import { die, makeDraggable } from './utils';
+import { makeDraggable } from './utils';
 
 import { isEventNew, isEventInProgress, isEventDone } from './status_utils';
 import ApiService from './api';
@@ -33,8 +33,8 @@ class Dialog extends EventEmitter {
 
     this.currentId = null;
 
-    this.dialog = element || die('element parameter is required');
-    this.api = api || die('api is required');
+    this.dialog = element;
+    this.api = api;
 
     this.btnActivate = this.dialog.querySelector('.btn-activate-event');
     this.btnCancel = this.dialog.querySelector('.btn-cancel-event');
@@ -101,7 +101,7 @@ class Dialog extends EventEmitter {
     form.author.value = data.author;
   }
 
-  openDialog({ id, startDate, endDate }: { id: string, startDate: Date, endDate: Date }): void {
+  openDialog({ id, startDate, endDate }: { id?: string, startDate?: Date, endDate?: Date }): void {
     this.currentId = id;
     this.dialog.querySelector('.status').textContent = '';
     hide(this.btnCancel);
