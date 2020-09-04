@@ -41,7 +41,7 @@ calendar.subscribe('interval.drop', (el: HTMLElement) => {
   });
 });
 
-calendar.subscribe('interval.resize', (el) => {
+calendar.subscribe('interval.resize', (el: HTMLElement) => {
   apiService.patchEvent(el.dataset.id, {
     endDate: parseISO(el.dataset.endDate),
   });
@@ -70,7 +70,7 @@ apiService.subscribe('api.delete.event', calendar.removeInterval);
 
 apiService.subscribe('api.post.event', calendar.updateInterval);
 
-calendarModel.subscribe('calendar-model.change', (model) => {
+calendarModel.subscribe('calendar-model.change', (model: CalendarModel) => {
   apiService.getAllEvents({
     startDate: model.getMinDate(),
     endDate: model.getMaxDate(),
@@ -84,7 +84,7 @@ setupLiveStatusUpdate(calendar);
 function setupLiveCalendarUpdate(calendar: Calendar, initialData: CalendarEvent[]) {
   const UPDATE_TIMEOUT = 1000;
 
-  const oldData = {};
+  const oldData: Record<string, CalendarEvent> = {};
   initialData.forEach((event) => {
     oldData[event.id] = event;
   });
@@ -99,7 +99,7 @@ function setupLiveCalendarUpdate(calendar: Calendar, initialData: CalendarEvent[
       endDate: calendarModel.getMaxDate(),
     })
       .then((events) => {
-        const currentData = {};
+        const currentData: Record<string, CalendarEvent> = {};
         events.forEach((event) => {
           let needUpdate = true;
           const oldEvent = oldData[event.id];

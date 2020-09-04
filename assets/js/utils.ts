@@ -1,5 +1,5 @@
 function makeDraggable(element: HTMLElement): void {
-  let lastMouseDownEvent = null;
+  let lastMouseDownEvent: MouseEvent = null;
 
   const drag = (e: MouseEvent) => {
     element.style.left = `${e.clientX - lastMouseDownEvent.offsetX}px`;

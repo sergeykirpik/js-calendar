@@ -4,7 +4,7 @@ export default class EventEmitter {
     this.handlers = {};
   }
 
-  subscribe(evt: string, handler: (unknown) => void): () => void {
+  subscribe(evt: string, handler: (payload: unknown) => void): () => void {
     if (this.handlers[evt]) {
       this.handlers[evt].push(handler);
     } else {

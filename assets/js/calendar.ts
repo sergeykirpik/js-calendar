@@ -17,6 +17,7 @@ import CalendarModel from './calendar_model';
 import { die, inRange, currentUser } from './utils';
 import EventEmitter from './emitter';
 import CalendarEvent from './model/calendar_event';
+import SyntheticMouseEvent from './types/synthetic_mouse_event';
 
 const CALENDAR_INTERVAL_VGAP = 2;
 const RESIZE_OFFSET = 10;
@@ -234,8 +235,8 @@ class Calendar extends EventEmitter {
     }
 
     setupEvents(): void {
-        let lastMouseDownEvent = null;
-        let destinationParent = null;
+        let lastMouseDownEvent: SyntheticMouseEvent = null;
+        let destinationParent: HTMLElement = null;
         let itWasDragAndDrop = false;
         let itWasResize = false;
 
@@ -257,8 +258,8 @@ class Calendar extends EventEmitter {
             document.removeEventListener('mouseup', handleDrop);
 
             this.lockUpdates = false;
-            itWasDragAndDrop = e.clientX !== lastMouseDownEvent.clientX
-                || e.clientY !== lastMouseDownEvent.clientY;
+            itWasDragAndDrop = (e.clientX !== lastMouseDownEvent.clientX
+                || e.clientY !== lastMouseDownEvent.clientY);
             if (itWasDragAndDrop) {
                 const el = lastMouseDownEvent.target;
                 const oldParentRow = this.getIntervalParentRow(el);
@@ -318,7 +319,7 @@ class Calendar extends EventEmitter {
             itWasDragAndDrop = false;
             itWasResize = false;
 
-            const e: { target: HTMLElement, clientX: number, clientY: number, offsetX?: number, offsetY?: number } = {
+            const e: SyntheticMouseEvent = {
                 target: evt.target as HTMLElement,
                 clientX: evt.clientX,
                 clientY: evt.clientY,
