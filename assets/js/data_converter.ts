@@ -1,13 +1,19 @@
+import CalendarEventJson from './model/calendar_event_json';
+import CalendarEvent from './model/calendar_event';
+
 class DataConverter {
-  static eventFromJSON(json: CalendarEvent): CalendarEvent {
-    const res = { ...json };
-    res.startDate = new Date(`${res.startDate.split('+')[0]}Z`);
-    res.endDate = new Date(`${res.endDate.split('+')[0]}Z`);
+  static eventFromJSON(json: CalendarEventJson): CalendarEvent {
+    const { startDate, endDate, ...rest } = json;
+    const res: CalendarEvent = {
+      startDate: new Date(`${startDate.split('+')[0]}Z`),
+      endDate: new Date(`${endDate.split('+')[0]}Z`),
+      ...rest
+    };
 
     return res;
   }
 
-  static eventsFromJSON(jsonArray: [CalendarEvent]): [CalendarEvent] {
+  static eventsFromJSON(jsonArray: Array<CalendarEventJson>): Array<CalendarEvent> {
     return jsonArray.map(DataConverter.eventFromJSON);
   }
 }

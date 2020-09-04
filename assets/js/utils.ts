@@ -1,7 +1,7 @@
-function makeDraggable(element: Element): void {
-  let lastMouseDownEvent: MouseEvent? = null;
+function makeDraggable(element: HTMLElement): void {
+  let lastMouseDownEvent = null;
 
-  const drag = (e) => {
+  const drag = (e: MouseEvent) => {
     element.style.left = `${e.clientX - lastMouseDownEvent.offsetX}px`;
     element.style.top = `${e.clientY - lastMouseDownEvent.offsetY}px`;
   };
@@ -15,7 +15,8 @@ function makeDraggable(element: Element): void {
     if (e.button !== 0) {
       return;
     }
-    if (e.target.classList.contains('drag-handle')) {
+    const el = e.target as HTMLElement;
+    if (el.classList.contains('drag-handle')) {
       document.addEventListener('mousemove', drag);
       document.addEventListener('mouseup', dragStop);
       lastMouseDownEvent = e;

@@ -1,31 +1,34 @@
-import { setElementColor } from './color_utils.ts';
-import { toLocalISODate, toLocalISOTimeWithoutSeconds } from './date_utils.ts';
-import EventEmitter from './emitter.ts';
+import { setElementColor } from './color_utils';
+import { toLocalISODate, toLocalISOTimeWithoutSeconds } from './date_utils';
+import EventEmitter from './emitter';
 
-import { die, makeDraggable } from './utils.ts';
+import { die, makeDraggable } from './utils';
 
-import { isEventNew, isEventInProgress, isEventDone } from './status_utils.ts';
-import ApiService from './api.ts';
+import { isEventNew, isEventInProgress, isEventDone } from './status_utils';
+import ApiService from './api';
+import CalendarEventPatch from './model/calendar_event_patch';
 
-function setVisibility(el, shown = false) {
+function setVisibility(el: HTMLElement, shown = false) {
   el.classList.toggle('d-none', !shown);
 }
 
-function show(el) {
+function show(el: HTMLElement) {
   setVisibility(el, true);
 }
 
-function hide(el) {
+function hide(el: HTMLElement) {
   setVisibility(el, false);
 }
 
 class Dialog extends EventEmitter {
-  /**
-     *
-     * @param {Element} dialog
-     * @param {ApiService} api
-     */
-  constructor({ element, api }: { element: Element, api: ApiService }) {
+  currentId: string;
+  dialog: HTMLElement;
+  api: ApiService;
+  btnActivate: HTMLElement;
+  btnCancel: HTMLElement;
+  btnDelete: HTMLElement;
+
+  constructor({ element, api }: { element: HTMLElement, api: ApiService }) {
     super();
 
     this.currentId = null;
@@ -50,11 +53,11 @@ class Dialog extends EventEmitter {
     this.setupDialogEvents();
   }
 
-  fireEvent(evt: string, data: unknown): void {
+  fireEvent(evt: string, data?: unknown): void {
     this.emit(evt, data);
   }
 
-  fillDialog(data: EventPatch): void {
+  fillDialog(data: { id?: string, isCanceled?: boolean, startDate: Date, endDate: Date, title: string, description: string, color: string, author: string, status: string }): void {
     let title = '';
     let status = '';
 
@@ -85,7 +88,7 @@ class Dialog extends EventEmitter {
     const form = this.dialog.querySelector('form');
     form.status.value = status;
     form.eventId.value = data.id;
-    form.title.value = data.title;
+    form.getElementById('title').value = data.title;
     form.description.value = data.description;
     form.startDate.value = toLocalISODate(data.startDate);
     form.endDate.value = toLocalISODate(data.endDate);
@@ -125,9 +128,10 @@ class Dialog extends EventEmitter {
   }
 
   hideOnTransitionComplete(e: TransitionEvent): void {
-    if (e.target.classList.contains('dialog')) {
-      e.target.removeEventListener('transitionend', this.hideOnTransitionComplete);
-      e.target.classList.add('hidden');
+    const el = e.target as HTMLElement;
+    if (el.classList.contains('dialog')) {
+      el.removeEventListener('transitionend', this.hideOnTransitionComplete);
+      el.classList.add('hidden');
     }
   }
 
@@ -147,19 +151,19 @@ class Dialog extends EventEmitter {
 
   handleSubmit(e: Event): void {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    const formData = new FormData(e.target as HTMLFormElement);
 
-    const data = {
-      title: formData.get('title') || 'Untitled event',
-      description: formData.get('description'),
+    const data: CalendarEventPatch = {
+      title: formData.get('title') as string || 'Untitled event',
+      description: formData.get('description') as string,
       startDate: new Date(`${formData.get('startDate')}T${formData.get('startTime')}`),
       endDate: new Date(`${formData.get('endDate')}T${formData.get('endTime')}`),
-      color: formData.get('color'),
+      color: formData.get('color') as string,
       isCanceled: false,
     };
 
     if (this.currentId) {
-      this.api.patchEvent(formData.get('eventId'), data);
+      this.api.patchEvent(formData.get('eventId').toString(), data);
     } else {
       this.api.postEvent(data);
     }
@@ -167,7 +171,7 @@ class Dialog extends EventEmitter {
   }
 
   handleColorChange(e: Event): void {
-    setElementColor(this.dialog.querySelector('.color-swatch'), e.target.value);
+    setElementColor(this.dialog.querySelector('.color-swatch'), (e.target as HTMLInputElement).value);
   }
 
   handleDelete(): void {

@@ -1,7 +1,10 @@
-import { die } from './utils.ts';
-import CalendarModel from './calendar_model.ts';
+import { die } from './utils';
+import CalendarModel from './calendar_model';
 
 class CalendarHeading {
+  element: Element;
+  model: CalendarModel;
+
   constructor({ element, model }: { element: Element, model: CalendarModel }) {
     this.element = element || die('parameter element is required');
     this.model = model || new CalendarModel();
@@ -27,7 +30,7 @@ class CalendarHeading {
       .addEventListener('click', this.handlePrevMonthClick);
 
     const correctCalendarHeadingPosition = () => {
-      const calendarHeading = document.querySelector('.calendar-heading');
+      const calendarHeading = document.querySelector('.calendar-heading') as HTMLElement;
       const calendar = document.querySelector('.calendar');
 
       if (calendar && calendarHeading) {

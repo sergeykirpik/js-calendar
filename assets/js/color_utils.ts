@@ -1,8 +1,8 @@
-function makeGradient(color) {
+function makeGradient(color: string) {
   return `linear-gradient(#fff, ${color}, ${color}, ${color}, #fff)`;
 }
 
-function colorBrightness(hexColor) {
+function colorBrightness(hexColor: string) {
   // http://www.w3.org/TR/AERT#color-contrast
 
   const r = parseInt(hexColor.slice(1, 3), 16);
@@ -12,7 +12,7 @@ function colorBrightness(hexColor) {
   return Math.round((299 * r + 587 * g + 114 * b) / 1000);
 }
 
-function setElementColor(el: Element, color: string): void {
+function setElementColor(el: HTMLElement, color: string): void {
   el.style.background = makeGradient(color);
   if (color && colorBrightness(color) <= 125) {
     el.style.color = 'white';
@@ -21,5 +21,4 @@ function setElementColor(el: Element, color: string): void {
   }
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export { setElementColor };

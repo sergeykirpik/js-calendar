@@ -2,14 +2,14 @@ import '../css/app.css';
 import '../css/dialog.css';
 import '../css/message.css';
 
-import Calendar from './calendar.ts';
-import CalendarModel from './calendar_model.ts';
-import Dialog from './dialog.ts';
-import ApiService from './api.ts';
+import Calendar from './calendar';
+import CalendarModel from './calendar_model';
+import Dialog from './dialog';
+import ApiService from './api';
 
-import CalendarHeading from './calendar_heading.ts';
-import { parseISO } from './date_utils.ts';
-import { setupLiveStatusUpdate } from './status_utils.ts';
+import CalendarHeading from './calendar_heading';
+import { parseISO } from './date_utils';
+import { setupLiveStatusUpdate } from './status_utils';
 
 const apiService = new ApiService();
 

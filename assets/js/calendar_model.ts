@@ -1,8 +1,11 @@
-import { addDays, startOfNextMonth, startOfMonth } from './date_utils.ts';
-import EventEmitter from './emitter.ts';
+import { addDays, startOfNextMonth, startOfMonth } from './date_utils';
+import EventEmitter from './emitter';
 
 class CalendarModel extends EventEmitter {
-  constructor(daysShown: number) {
+  currentMonth: Date;
+  daysShown: number;
+
+  constructor(daysShown: number|void) {
     super();
     this.currentMonth = startOfMonth(new Date());
     this.daysShown = daysShown || 42;
@@ -38,6 +41,7 @@ class CalendarModel extends EventEmitter {
   fireUpdate(): void {
     this.emit('calendar-model.change', this);
   }
+
 }
 
 export default CalendarModel;

@@ -86,14 +86,20 @@ function toLocalISODateAndTime(date: Date|string): string {
 
 function parseISO(dateTimeString: string): Date {
   const [dateString, timeString = '00:00:00'] = dateTimeString.split('.')[0].split('T');
-  const [year, month, date] = dateString.split('-');
-  const [hours, minutes, seconds] = timeString.split(':');
+  const [year, month, date] = dateString.split('-').map(part => parseInt(part, 10));
+  const [hours, minutes, seconds] = timeString.split(':').map(part => parseInt(part, 10));
 
   return new Date(year, month - 1, date, hours, minutes, seconds);
 }
 
+function formatDayLabel(date: Date): string {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${months[date.getMonth()]}, ${date.getDate()}`;
+}
+
+
 export {
   startOfMonth, startOfNextMonth, addDays, isToday, dateDiffInDays, dateDiffHuman,
   padWithZero, toLocalISODate, toLocalISOTime, toLocalISODateAndTime, toLocalISOTimeWithoutSeconds,
-  parseISO, startOfDay,
+  parseISO, startOfDay, formatDayLabel
 };
