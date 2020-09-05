@@ -4,6 +4,8 @@ import DataConverter from './data_converter';
 import EventEmitter from './emitter';
 import CalendarEvent from './model/calendar_event';
 import CalendarEventPatch from './model/calendar_event_patch';
+import CalendarEventJson from './model/calendar_event_json';
+import DateInterval from './types/date_interval';
 
 enum HTTPMethod {
     GET = 'get',
@@ -42,34 +44,38 @@ class ApiService extends EventEmitter {
     }
 
     getEvent(id: string): Promise<CalendarEvent> {
-        return this.http(HTTPMethod.GET, `/api/events/${id}`).then(DataConverter.eventFromJSON);
+        return (this.http(HTTPMethod.GET, `/api/events/${id}`) as Promise<CalendarEventJson>)
+            .then(DataConverter.eventFromJSON);
     }
 
     patchEvent(id: string, body: CalendarEventPatch): void {
-        this.http(HTTPMethod.PATCH, `/api/events/${id}`, body)
+        (this.http(HTTPMethod.PATCH, `/api/events/${id}`, body) as Promise<CalendarEventJson>)
             .then(DataConverter.eventFromJSON)
             .then((data) => this.emit('api.patch.event', data))
             .catch((error) => this.emit('api.patch.event.error', { id, error }));
     }
 
     postEvent(body: CalendarEventPatch): void {
-        this.http(HTTPMethod.POST, '/api/events/', body)
+        (this.http(HTTPMethod.POST, '/api/events/', body) as Promise<CalendarEventJson>)
             .then(DataConverter.eventFromJSON)
             .then((data) => this.emit('api.post.event', data));
     }
 
-    deleteEvent(id: string): Promise<unknown> {
-        id || die('Invalid id');
-        return this.http(HTTPMethod.DELETE, `/api/events/${id}`)
+    deleteEvent(id: string): void {
+        this.http(HTTPMethod.DELETE, `/api/events/${id}`)
             .then(() => this.emit('api.delete.event', id));
     }
 
     getAllEvents(
-        { startDate, endDate }: { startDate: Date, endDate: Date },
+        { startDate, endDate }: DateInterval,
     ): Promise<Array<CalendarEvent>> {
         const qStartDate = startDate ? startDate.toJSON() : '';
         const qEndDate = endDate ? endDate.toJSON() : '';
-        return this.http(HTTPMethod.GET, `/api/events/?startDate=${qStartDate}&endDate=${qEndDate}`)
+
+        return (this.http(
+            HTTPMethod.GET,
+            `/api/events/?startDate=${qStartDate}&endDate=${qEndDate}`
+        ) as Promise<CalendarEventJson[]>)
             .then(DataConverter.eventsFromJSON);
     }
 }

@@ -1,7 +1,10 @@
 function makeDraggable(element: HTMLElement): void {
-  let lastMouseDownEvent: MouseEvent = null;
+  let lastMouseDownEvent: MouseEvent|null = null;
 
   const drag = (e: MouseEvent) => {
+    if (!lastMouseDownEvent) {
+      return;
+    }
     element.style.left = `${e.clientX - lastMouseDownEvent.offsetX}px`;
     element.style.top = `${e.clientY - lastMouseDownEvent.offsetY}px`;
   };
@@ -24,8 +27,8 @@ function makeDraggable(element: HTMLElement): void {
   });
 }
 
-function die(message: string): never {
-  throw new Error(message);
+function die(message?: string): never {
+  throw new Error(message||'Error occured.');
 }
 
 function inRange(val: number, min: number, max: number): boolean {
@@ -33,7 +36,7 @@ function inRange(val: number, min: number, max: number): boolean {
 }
 
 function currentUser(): string {
-  return document.body.dataset.user;
+  return document.body.dataset.user || '';
 }
 
 export {

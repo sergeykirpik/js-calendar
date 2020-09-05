@@ -1,5 +1,5 @@
 export default interface CalendarEvent {
-    id?: string;
+    id: string;
     author: string;
     color: string;
     description: string;

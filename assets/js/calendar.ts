@@ -17,14 +17,15 @@ import CalendarModel from './calendar_model';
 import { die, inRange, currentUser } from './utils';
 import EventEmitter from './emitter';
 import CalendarEvent from './model/calendar_event';
-import SyntheticMouseEvent from './types/synthetic_mouse_event';
+import IntervalElement from './types/interval_element';
+import CalendarCellElement from './types/cell_element';
 
 const CALENDAR_INTERVAL_VGAP = 2;
 const RESIZE_OFFSET = 10;
 
 class Calendar extends EventEmitter {
     lockUpdates: boolean | false;
-    model?: CalendarModel;
+    model: CalendarModel;
     element: HTMLElement;
     constructor({ model, element }: { model: CalendarModel, element: HTMLElement }) {
         super();
@@ -76,9 +77,11 @@ class Calendar extends EventEmitter {
 
         let el = this.findInterval(data.id);
 
-        el || (el = document.createElement('div'));
+        if (!el) {
+            el = document.createElement('div') as unknown as IntervalElement;
+        }
 
-        const newContainer = cell.querySelector('.events-container');
+        const newContainer = cell.querySelector('.events-container') as Element;
         if (newContainer !== el.parentElement) {
             newContainer.appendChild(el);
         }
@@ -122,7 +125,7 @@ class Calendar extends EventEmitter {
         for (let i = 0; i < cells.length; i++) {
             cells[i].dataset.date = toLocalISODate(currentDate);
 
-            const dayLabel = cells[i].querySelector('.day-label');
+            const dayLabel = cells[i].querySelector('.day-label') as Element;
             dayLabel.textContent = formatDayLabel(currentDate);
 
             dayLabel.className = 'day-label';
@@ -136,7 +139,7 @@ class Calendar extends EventEmitter {
         }
     }
 
-    fixIntervalPosition(thisEl: HTMLElement): void {
+    fixIntervalPosition(thisEl: IntervalElement): void {
         thisEl.style.marginTop = `${CALENDAR_INTERVAL_VGAP}px`;
         const calendarRow = this.getIntervalParentRow(thisEl);
         const allIntevalsInRow = calendarRow.querySelectorAll('.calendar-interval');
@@ -163,11 +166,14 @@ class Calendar extends EventEmitter {
         }
     }
 
-    getIntervalParentRow(interval: HTMLElement): HTMLElement {
-        return interval.parentElement.parentElement.parentElement;
+    getIntervalParentRow(interval: IntervalElement): HTMLElement {
+        const eventsContainer = interval.parentElement;
+        const calendarCell = eventsContainer?.parentElement;
+        const calendarRow = calendarCell?.parentElement as HTMLElement;
+        return calendarRow;
     }
 
-    findInterval(dataId: string): HTMLElement {
+    findInterval(dataId: string): IntervalElement|null {
         return this.element.querySelector(`[data-id="${dataId}"]`);
     }
 
@@ -188,7 +194,7 @@ class Calendar extends EventEmitter {
             .forEach((el) => el.classList.remove('selected'));
     }
 
-    selectInterval(el: HTMLElement): void {
+    selectInterval(el: IntervalElement): void {
         this.deselectAllIntervals();
         el.classList.add('selected');
     }
@@ -198,7 +204,7 @@ class Calendar extends EventEmitter {
             .forEach((el) => el.classList.remove('shaded'));
     }
 
-    shadeCell(el: HTMLElement): void {
+    shadeCell(el: Element): void {
         this.unshadeAllCells();
         el.classList.add('shaded');
     }
@@ -210,7 +216,7 @@ class Calendar extends EventEmitter {
     fixAllIntervalsInRow(calendarRow: HTMLElement): void {
         calendarRow.classList.contains('calendar-row') || die('parameter calendarRow must be .calendar-row');
 
-        const allIntevalsInRow = calendarRow.querySelectorAll('.calendar-interval');
+        const allIntevalsInRow = calendarRow.querySelectorAll('.calendar-interval') as NodeListOf<IntervalElement>;
 
         allIntevalsInRow.forEach(this.fixIntervalPosition);
     }
@@ -235,33 +241,42 @@ class Calendar extends EventEmitter {
     }
 
     setupEvents(): void {
-        let lastMouseDownEvent: SyntheticMouseEvent = null;
-        let destinationParent: HTMLElement = null;
+        let lastMouseDownEvent: {
+            target: Element|null,
+            offsetX: number,
+            offsetY: number,
+            clientX: number,
+            clientY: number
+        }|null = null;
+        let destinationParent: HTMLElement|null = null;
         let itWasDragAndDrop = false;
         let itWasResize = false;
 
-        //const calendar = this;
-
-        const handleDrag = function (e: MouseEvent) {
+        const handleDrag = (e: MouseEvent) => {
             if (lastMouseDownEvent) {
                 const { target, offsetX, offsetY } = lastMouseDownEvent;
-                if (!target.classList.contains('dragging')) {
-                    target.classList.add('dragging');
+                const el = target as IntervalElement;
+                if (!el.classList.contains('dragging')) {
+                    el.classList.add('dragging');
                 }
-                target.style.left = `${e.clientX - offsetX}px`;
-                target.style.top = `${e.clientY - offsetY - (parseInt(target.style.marginTop, 10) || 0)}px`;
+                el.style.left = `${e.clientX - offsetX}px`;
+                el.style.top = `${e.clientY - offsetY - (parseInt(el.style.marginTop, 10) || 0)}px`;
             }
         };
 
-        const handleDrop = function (e: MouseEvent) {
+        const handleDrop = (e: MouseEvent) => {
             document.removeEventListener('mousemove', handleDrag);
             document.removeEventListener('mouseup', handleDrop);
+
+            if (!lastMouseDownEvent || !destinationParent) {
+                return;
+            }
 
             this.lockUpdates = false;
             itWasDragAndDrop = (e.clientX !== lastMouseDownEvent.clientX
                 || e.clientY !== lastMouseDownEvent.clientY);
             if (itWasDragAndDrop) {
-                const el = lastMouseDownEvent.target;
+                const el = lastMouseDownEvent.target as IntervalElement;
                 const oldParentRow = this.getIntervalParentRow(el);
                 destinationParent.appendChild(el);
                 el.classList.remove('dragging');
@@ -272,7 +287,7 @@ class Calendar extends EventEmitter {
                 }
 
                 lastMouseDownEvent = null;
-                const parentCell = destinationParent.parentElement;
+                const parentCell = destinationParent.parentElement as CalendarCellElement;
 
                 const startDate = parseISO(el.dataset.startDate);
                 const endDate = parseISO(el.dataset.endDate);
@@ -291,18 +306,24 @@ class Calendar extends EventEmitter {
         const doResizing = function (e: MouseEvent) {
             if (lastMouseDownEvent) {
                 const { target, offsetX, clientX } = lastMouseDownEvent;
-                target.style.width = `${offsetX + (e.clientX - clientX)}px`;
+                const el = target as IntervalElement;
+                el.style.width = `${offsetX + (e.clientX - clientX)}px`;
             }
         };
 
-        const stopResizing = function () {
+        const stopResizing = () => {
             document.removeEventListener('mousemove', doResizing);
             document.removeEventListener('mouseup', stopResizing);
 
+            if (!lastMouseDownEvent) {
+                return;
+            }
+
             this.lockUpdates = false;
-            const el = lastMouseDownEvent.target;
+            const el = lastMouseDownEvent.target as IntervalElement;
             const endDate = parseISO(el.dataset.endDate);
-            const newEndDate = parseISO(destinationParent.parentElement.dataset.date);
+            const destinationCell = destinationParent?.parentElement as CalendarCellElement;
+            const newEndDate = parseISO(destinationCell.dataset.date);
             newEndDate.setHours(endDate.getHours());
             newEndDate.setMinutes(endDate.getMinutes());
 
@@ -312,28 +333,35 @@ class Calendar extends EventEmitter {
             lastMouseDownEvent = null;
         };
 
-        const handleMouseDown = function (evt: MouseEvent) {
-            if (evt.button !== 0) {
+        const handleMouseDown = (e: MouseEvent) => {
+            if (e.button !== 0) {
                 return;
             }
             itWasDragAndDrop = false;
             itWasResize = false;
 
-            const e: SyntheticMouseEvent = {
-                target: evt.target as HTMLElement,
-                clientX: evt.clientX,
-                clientY: evt.clientY,
+            lastMouseDownEvent = {
+                target: e.target as IntervalElement,
+                offsetX: e.offsetX,
+                offsetY: e.offsetY,
+                clientX: e.clientX,
+                clientY: e.clientY,
             };
 
-            if (e.target.parentElement.classList.contains('calendar-interval')) {
-                e.target = e.target.parentElement;
+            let interval = e.target as Element;
+
+            if (interval.parentElement?.classList.contains('calendar-interval')) {
+                interval = interval.parentElement;
+                lastMouseDownEvent.target = interval;
+                lastMouseDownEvent.offsetX = 0;
+                lastMouseDownEvent.offsetY = 0;
             }
-            if (e.target.classList.contains('calendar-interval')) {
-                const rect = e.target.getBoundingClientRect();
-                e.offsetX = e.clientX - rect.x;
-                e.offsetY = e.clientY - rect.y;
-                lastMouseDownEvent = e;
-                if (rect.width - e.offsetX < RESIZE_OFFSET) {
+
+            if (interval.classList.contains('calendar-interval')) {
+                const rect = interval.getBoundingClientRect();
+                lastMouseDownEvent.offsetX = e.clientX - rect.x;
+                lastMouseDownEvent.offsetY = e.clientY - rect.y;
+                if (rect.width - lastMouseDownEvent.offsetX < RESIZE_OFFSET) {
                     document.addEventListener('mousemove', doResizing);
                     document.addEventListener('mouseup', stopResizing);
                 } else {
@@ -345,33 +373,37 @@ class Calendar extends EventEmitter {
         };
         this.element.addEventListener('mousedown', handleMouseDown);
 
-        const handleClick = function (evt: MouseEvent) {
+        const handleClick = (e: MouseEvent) => {
             if (itWasDragAndDrop || itWasResize) {
                 return;
             }
-            const e = {
-                target: evt.target as HTMLElement,
-            };
-            if (e.target.parentElement.classList.contains('calendar-interval')) {
-                e.target = e.target.parentElement;
+            let target = e.target as Element;
+
+            if (target.parentElement?.classList.contains('calendar-interval')) {
+                target = target.parentElement;
             }
-            if (e.target.classList.contains('calendar-interval')) {
-                this.selectInterval(e.target);
-                this.emit('calendar.interval.click', e.target);
-            } else if (e.target.classList.contains('calendar-cell')) {
-                this.emit('calendar.cell.click', e.target);
+            if (target.classList.contains('calendar-interval')) {
+                this.selectInterval(target as IntervalElement);
+                this.emit('calendar.interval.click', target);
+            } else if (target.classList.contains('calendar-cell')) {
+                this.emit('calendar.cell.click', target);
             }
         };
         this.element.addEventListener('click', handleClick);
 
-        const handleMouseMove = function (e: MouseEvent) {
-            const el = e.target as HTMLElement;
-            if (el.classList.contains('calendar-interval')) {
-                el.style.cursor = 'pointer';
+        const handleMouseMove = (e: MouseEvent) => {
+            let interval = e.target as HTMLElement;
 
-                const rect = el.getBoundingClientRect();
+            if (interval.parentElement?.classList.contains('calendar-interval')) {
+                interval = interval.parentElement;
+            }
+
+            if (interval.classList.contains('calendar-interval')) {
+                interval.style.cursor = 'pointer';
+
+                const rect = interval.getBoundingClientRect();
                 if (rect.width - e.offsetX < RESIZE_OFFSET) {
-                    el.style.cursor = 'col-resize';
+                    interval.style.cursor = 'col-resize';
                 }
             }
             document.elementsFromPoint(e.clientX, e.clientY).forEach((el) => {

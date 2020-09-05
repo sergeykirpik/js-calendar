@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { parseISO, dateDiffHuman, dateDiffInDays } from './date_utils';
 import Calendar from './calendar';
+import IntervalElement from './types/interval_element';
 
 function isEventInProgress({ startDate, endDate }: { startDate: Date, endDate: Date }): boolean {
     const now = Date.now();
@@ -16,7 +18,8 @@ function isEventNew({ startDate }: { startDate: Date }): boolean {
 
 function setupLiveStatusUpdate(calendar: Calendar): void {
     function handleTimeout() {
-        calendar.element.querySelectorAll('.calendar-interval').forEach((el: HTMLElement) => {
+        calendar.element.querySelectorAll('.calendar-interval').forEach((el1) => {
+            const el = el1 as IntervalElement;
             const startDate = parseISO(el.dataset.startDate);
             const endDate = parseISO(el.dataset.endDate);
             const isCanceled = el.dataset.canceled;
@@ -35,7 +38,7 @@ function setupLiveStatusUpdate(calendar: Calendar): void {
                     status = '[ new ]';
                 }
             }
-            el.querySelector('.status-label').textContent = status;
+            el.querySelector('.status-label')!.textContent = status;
         });
         setTimeout(handleTimeout, 1000);
     }

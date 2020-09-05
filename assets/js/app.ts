@@ -11,6 +11,10 @@ import CalendarHeading from './calendar_heading';
 import { parseISO } from './date_utils';
 import { setupLiveStatusUpdate } from './status_utils';
 import CalendarEvent from './model/calendar_event';
+import { die } from './utils';
+import IntervalElement from './types/interval_element';
+import CalendarCellElement from './types/cell_element';
+import { showMessage } from './message';
 
 const apiService = new ApiService();
 
@@ -18,40 +22,40 @@ const calendarModel = new CalendarModel();
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const calendarHeading = new CalendarHeading({
-  element: document.querySelector('.calendar-heading-wrapper'),
+  element: document.querySelector('.calendar-heading-wrapper') || die(),
   model: calendarModel,
 });
 
 const dialog = new Dialog({
-  element: document.querySelector('.dialog'),
+  element: document.querySelector('.dialog') || die(),
   api: apiService,
 });
 
 const calendar = new Calendar({
-  element: document.querySelector('.calendar'),
+  element: document.querySelector('.calendar') || die(),
   model: calendarModel,
 });
 
 dialog.subscribe('dialog.close', calendar.deselectAllIntervals);
 
-calendar.subscribe('interval.drop', (el: HTMLElement) => {
+calendar.subscribe<IntervalElement>('interval.drop', (el) => {
   apiService.patchEvent(el.dataset.id, {
     startDate: parseISO(el.dataset.startDate),
     endDate: parseISO(el.dataset.endDate),
   });
 });
 
-calendar.subscribe('interval.resize', (el: HTMLElement) => {
+calendar.subscribe<IntervalElement>('interval.resize', (el) => {
   apiService.patchEvent(el.dataset.id, {
     endDate: parseISO(el.dataset.endDate),
   });
 });
 
-calendar.subscribe('calendar.interval.click', (el: HTMLElement) => {
+calendar.subscribe<IntervalElement>('calendar.interval.click', (el) => {
   dialog.openDialog({ id: el.dataset.id });
 });
 
-calendar.subscribe('calendar.cell.click', (el: HTMLElement) => {
+calendar.subscribe<CalendarCellElement>('calendar.cell.click', (el) => {
   if (dialog.isHidden()) {
     dialog.openDialog({ startDate: parseISO(el.dataset.date) });
   } else {
@@ -62,7 +66,7 @@ calendar.subscribe('calendar.cell.click', (el: HTMLElement) => {
 
 apiService.subscribe('api.patch.event', calendar.updateInterval);
 
-apiService.subscribe('api.patch.event.error', ({ id }) => {
+apiService.subscribe('api.patch.event.error', ({ id }: { id: string }) => {
   apiService.getEvent(id).then(calendar.updateInterval);
 });
 
@@ -82,7 +86,7 @@ setupLiveStatusUpdate(calendar);
 
 // eslint-disable-next-line no-shadow
 function setupLiveCalendarUpdate(calendar: Calendar, initialData: CalendarEvent[]) {
-  const UPDATE_TIMEOUT = 1000;
+  const UPDATE_TIMEOUT = 5000;
 
   const oldData: Record<string, CalendarEvent> = {};
   initialData.forEach((event) => {
@@ -134,3 +138,7 @@ apiService.getAllEvents({
   endDate: calendarModel.getMaxDate(),
 })
   .then((data) => setupLiveCalendarUpdate(calendar, data));
+
+window.onerror = (e) => {
+  showMessage('!!'+e.toString());
+};

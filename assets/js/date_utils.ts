@@ -65,10 +65,6 @@ function toLocalISOTime(pDate: Date|string): string {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-/**
- *
- * @param {Date|string} date
- */
 function toLocalISOTimeWithoutSeconds(pDate: Date|string): string {
   let date = pDate;
   if (!(date instanceof Date)) {
@@ -96,7 +92,6 @@ function formatDayLabel(date: Date): string {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   return `${months[date.getMonth()]}, ${date.getDate()}`;
 }
-
 
 export {
   startOfMonth, startOfNextMonth, addDays, isToday, dateDiffInDays, dateDiffHuman,

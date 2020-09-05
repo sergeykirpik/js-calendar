@@ -24,10 +24,8 @@ class CalendarHeading {
   }
 
   setupEvents(): void {
-    this.element.querySelector('.btn-next-month')
-      .addEventListener('click', this.handleNextMonthClick);
-    this.element.querySelector('.btn-prev-month')
-      .addEventListener('click', this.handlePrevMonthClick);
+    this.element.querySelector('.btn-next-month')?.addEventListener('click', this.handleNextMonthClick);
+    this.element.querySelector('.btn-prev-month')?.addEventListener('click', this.handlePrevMonthClick);
 
     const correctCalendarHeadingPosition = () => {
       const calendarHeading = document.querySelector('.calendar-heading') as HTMLElement;

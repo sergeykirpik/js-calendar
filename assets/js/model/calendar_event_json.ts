@@ -1,4 +1,4 @@
-export default interface CalendarEvent {
+export default interface CalendarEventJson {
     id: string;
     author: string;
     color: string;

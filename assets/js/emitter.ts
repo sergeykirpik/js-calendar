@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default class EventEmitter {
-  handlers: Record<string, Array<(payload: unknown) => void>>;
+  handlers: Record<string, Array<(payload: any) => void>>;
   constructor() {
     this.handlers = {};
   }
 
-  subscribe(evt: string, handler: (payload: unknown) => void): () => void {
+  subscribe<T>(evt: string, handler: (payload: T) => void): () => void {
     if (this.handlers[evt]) {
       this.handlers[evt].push(handler);
     } else {
