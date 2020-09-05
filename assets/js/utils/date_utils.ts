@@ -1,11 +1,9 @@
+import { padWithZero } from './number_utils';
+
 const ONE_DAY_MS = 8.64e+7;
 
 function dateDiffInDays(date1: Date, date2: Date): number {
   return Math.floor((date2.getTime() - date1.getTime()) / ONE_DAY_MS);
-}
-
-function padWithZero(value: number|string): string {
-  return value < 10 ? `0${value}` : `${value}`;
 }
 
 function dateDiffHuman(date1: Date, date2: Date): string {

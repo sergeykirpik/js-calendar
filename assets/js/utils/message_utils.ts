@@ -6,10 +6,4 @@ function showMessage(text: string): void {
   setTimeout(() => el.remove(), 4000);
 }
 
-declare global {
-  interface Window { showMessage: (msg: string) => void }
-}
-
-window.showMessage = showMessage;
-
 export { showMessage };

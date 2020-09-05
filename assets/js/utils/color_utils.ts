@@ -1,3 +1,5 @@
+import { randomInt, padWithZero } from './number_utils';
+
 function makeGradient(color: string) {
   return `linear-gradient(#fff, ${color}, ${color}, ${color}, #fff)`;
 }
@@ -21,4 +23,12 @@ function setElementColor(el: HTMLElement, color: string): void {
   }
 }
 
-export { setElementColor };
+function randomColor(): string {
+  const r = randomInt(0, 255).toString(16);
+  const g = randomInt(0, 255).toString(16);
+  const b = randomInt(0, 255).toString(16);
+
+  return `#${padWithZero(r)}${padWithZero(g)}${padWithZero(b)}`;
+}
+
+export { setElementColor, randomColor };

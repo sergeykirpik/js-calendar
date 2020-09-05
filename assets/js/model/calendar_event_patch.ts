@@ -4,6 +4,7 @@ export default interface CalendarEventPatch {
     description?: string;
     title?: string;
     isCanceled?: boolean | false;
-    startDate?: Date,
-    endDate?: Date,
+    startDate?: Date;
+    endDate?: Date;
+    author?: string;
 }

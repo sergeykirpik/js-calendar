@@ -1,3 +1,15 @@
+function setVisibility(el: HTMLElement, shown = false): void {
+  el.classList.toggle('d-none', !shown);
+}
+
+function showElement(el: HTMLElement): void {
+  setVisibility(el, true);
+}
+
+function hideElement(el: HTMLElement): void {
+  setVisibility(el, false);
+}
+
 function makeDraggable(element: HTMLElement): void {
   let lastMouseDownEvent: MouseEvent|null = null;
 
@@ -27,18 +39,5 @@ function makeDraggable(element: HTMLElement): void {
   });
 }
 
-function die(message?: string): never {
-  throw new Error(message||'Error occured.');
-}
 
-function inRange(val: number, min: number, max: number): boolean {
-  return val >= min && val <= max;
-}
-
-function currentUser(): string {
-  return document.body.dataset.user || '';
-}
-
-export {
-  die, makeDraggable, inRange, currentUser,
-};
+export { showElement, hideElement, setVisibility, makeDraggable };

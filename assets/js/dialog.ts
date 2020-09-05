@@ -1,44 +1,44 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { setElementColor } from './color_utils';
-import { toLocalISODate, toLocalISOTimeWithoutSeconds } from './date_utils';
+import { setElementColor } from './utils/color_utils';
+import { toLocalISODate, toLocalISOTimeWithoutSeconds } from './utils/date_utils';
 import EventEmitter from './emitter';
 
-import { makeDraggable, die } from './utils';
+import { die } from './utils/assertion_utils';
 
-import { isEventNew, isEventInProgress, isEventDone } from './status_utils';
 import ApiService from './api';
 import CalendarEventPatch from './model/calendar_event_patch';
-
-function setVisibility(el: HTMLElement, shown = false) {
-  el.classList.toggle('d-none', !shown);
-}
-
-function show(el: HTMLElement) {
-  setVisibility(el, true);
-}
-
-function hide(el: HTMLElement) {
-  setVisibility(el, false);
-}
+import CalendarEvent from './model/calendar_event';
+import { showElement, setVisibility, hideElement, makeDraggable } from './utils/element_utils';
 
 class Dialog extends EventEmitter {
   currentId: string;
-  dialog: HTMLElement;
+  dialogEl: HTMLElement;
   api: ApiService;
+  btnClose: HTMLElement;
   btnActivate: HTMLElement;
   btnCancel: HTMLElement;
   btnDelete: HTMLElement;
+  statusEl: HTMLElement;
+  colorSwatchEl: HTMLElement;
+  formEl: HTMLFormElement;
+  colorHiddenEl: HTMLInputElement;
 
   constructor({ element, api }: { element: HTMLElement, api: ApiService }) {
     super();
 
     this.currentId = "";
-    this.dialog = element;
+    this.dialogEl = element;
     this.api = api;
 
-    this.btnActivate = this.dialog.querySelector('.btn-activate-event') || die();
-    this.btnCancel = this.dialog.querySelector('.btn-cancel-event') || die();
-    this.btnDelete = this.dialog.querySelector('.btn-delete') || die();
+    this.formEl = this.dialogEl.querySelector('form') || die();
+
+    this.btnClose = this.dialogEl.querySelector('.btn-close') || die();
+    this.btnActivate = this.dialogEl.querySelector('.btn-activate-event') || die();
+    this.btnCancel = this.dialogEl.querySelector('.btn-cancel-event') || die();
+    this.btnDelete = this.dialogEl.querySelector('.btn-delete') || die();
+
+    this.statusEl = this.dialogEl.querySelector('.status') || die();
+    this.colorHiddenEl = this.dialogEl.querySelector('#color') || die();
+    this.colorSwatchEl = this.dialogEl.querySelector('.color-swatch') || die();
 
     this.hideOnTransitionComplete = this.hideOnTransitionComplete.bind(this);
     this.openDialog = this.openDialog.bind(this);
@@ -57,7 +57,7 @@ class Dialog extends EventEmitter {
     this.emit(evt, data);
   }
 
-  fillDialog(data: { id?: string, isCanceled?: boolean, startDate: Date, endDate: Date, title: string, description: string, color: string, author: string, status: string }): void {
+  fillDialog(data: CalendarEvent): void {
     let title = '';
     let status = '';
 
@@ -65,17 +65,17 @@ class Dialog extends EventEmitter {
       title = `Edit event #${data.id}`;
       if (data.isCanceled) {
         status = '[ canceled ]';
-        if (!isEventDone(data)) {
-          show(this.btnActivate);
+        if (!data.isDone()) {
+          showElement(this.btnActivate);
         }
-      } else if (isEventInProgress(data)) {
+      } else if (data.isInProgress()) {
         status = '[ in-progress ]';
-        show(this.btnCancel);
-      } else if (isEventDone(data)) {
+        showElement(this.btnCancel);
+      } else if (data.isDone()) {
         status = '[ done ]';
-      } else if (isEventNew(data)) {
+      } else if (data.isNew()) {
         status = '[ new ]';
-        show(this.btnCancel);
+        showElement(this.btnCancel);
       }
     } else {
       title = 'Create new event';
@@ -83,47 +83,38 @@ class Dialog extends EventEmitter {
     }
     setVisibility(this.btnDelete, !!data.id);
 
-    this.dialog.querySelector('.status')!.textContent = title;
+    this.statusEl.textContent = title;
 
-    const form = this.dialog.querySelector('form') as HTMLFormElement;
-    form.status.value = status;
-    form.eventId.value = data.id;
-    form['event-title'].value = data.title;
-    form.description.value = data.description;
-    form.startDate.value = toLocalISODate(data.startDate);
-    form.endDate.value = toLocalISODate(data.endDate);
+    this.formEl.status.value = status;
+    this.formEl.eventId.value = data.id;
+    this.formEl['event-title'].value = data.title;
+    this.formEl.description.value = data.description;
+    this.formEl.startDate.value = toLocalISODate(data.startDate);
+    this.formEl.endDate.value = toLocalISODate(data.endDate);
 
-    form.startTime.value = toLocalISOTimeWithoutSeconds(data.startDate);
-    form.endTime.value = toLocalISOTimeWithoutSeconds(data.endDate);
+    this.formEl.startTime.value = toLocalISOTimeWithoutSeconds(data.startDate);
+    this.formEl.endTime.value = toLocalISOTimeWithoutSeconds(data.endDate);
 
-    form.color.value = data.color;
-    setElementColor(form.querySelector('.color-swatch') as HTMLElement, data.color);
-    form.author.value = data.author;
+    this.formEl.color.value = data.color;
+    setElementColor(this.colorSwatchEl, data.color);
+    this.formEl.author.value = data.author;
   }
 
-  openDialog({ id = '', startDate, endDate }: { id?: string, startDate?: Date, endDate?: Date }): void {
+  openDialog({ id = '', startDate }: { id?: string, startDate?: Date }): void {
     this.currentId = id;
-    this.dialog.querySelector('.status')!.textContent = '';
-    hide(this.btnCancel);
-    hide(this.btnActivate);
+    this.statusEl.textContent = '';
+    hideElement(this.btnCancel);
+    hideElement(this.btnActivate);
 
-    if (this.dialog) {
-      this.dialog.classList.remove('hidden');
-      this.dialog.classList.remove('transparent');
+    if (this.dialogEl) {
+      this.dialogEl.classList.remove('hidden');
+      this.dialogEl.classList.remove('transparent');
     }
     if (id) {
-      this.dialog.querySelector('.status')!.textContent = `[Loading: id: ${id}... ]`;
+      this.statusEl.textContent = `[Loading: id: ${id}... ]`;
       this.api.getEvent(id).then(this.fillDialog);
     } else {
-      this.fillDialog({
-        status: 'new',
-        title: '',
-        description: '',
-        startDate: startDate || new Date(),
-        endDate: (endDate || startDate || new Date()),
-        color: '#aaaaaa',
-        author: 'You',
-      });
+      this.fillDialog(new CalendarEvent({ startDate }));
     }
   }
 
@@ -137,21 +128,20 @@ class Dialog extends EventEmitter {
 
   closeDialog(): void {
     this.currentId = '';
-    const { dialog } = this;
-    if (dialog && !dialog.classList.contains('transparent')) {
-      dialog.classList.add('transparent');
-      dialog.addEventListener('transitionend', this.hideOnTransitionComplete);
+    if (this.dialogEl && !this.dialogEl.classList.contains('transparent')) {
+      this.dialogEl.classList.add('transparent');
+      this.dialogEl.addEventListener('transitionend', this.hideOnTransitionComplete);
     }
     this.fireEvent('dialog.close');
   }
 
   isHidden(): boolean {
-    return this.dialog.classList.contains('hidden');
+    return this.dialogEl.classList.contains('hidden');
   }
 
   handleSubmit(e: Event): void {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
+    const formData = new FormData(this.formEl);
 
     const data: CalendarEventPatch = {
       title: formData.get('title') as string || 'Untitled event',
@@ -170,11 +160,8 @@ class Dialog extends EventEmitter {
     this.closeDialog();
   }
 
-  handleColorChange(e: Event): void {
-    setElementColor(
-      this.dialog.querySelector('.color-swatch') as HTMLElement,
-      (e.target as HTMLInputElement).value
-    );
+  handleColorChange(): void {
+    setElementColor(this.colorSwatchEl, this.colorHiddenEl.value);
   }
 
   handleDelete(): void {
@@ -193,19 +180,19 @@ class Dialog extends EventEmitter {
   }
 
   setupDialogEvents(): void {
-    makeDraggable(this.dialog);
+    makeDraggable(this.dialogEl);
 
-    this.dialog.querySelector('.btn-close')?.addEventListener('click', this.closeDialog);
+    this.btnClose.addEventListener('click', this.closeDialog);
 
     this.btnCancel.addEventListener('click', this.handleCancel);
 
     this.btnActivate.addEventListener('click', this.handleActivate);
 
-    this.dialog.querySelector('form')?.addEventListener('submit', this.handleSubmit);
+    this.formEl.addEventListener('submit', this.handleSubmit);
 
-    this.dialog.querySelector('#color')?.addEventListener('change', this.handleColorChange);
+    this.colorHiddenEl.addEventListener('change', this.handleColorChange);
 
-    this.dialog.querySelector('.btn-delete')?.addEventListener('click', this.handleDelete);
+    this.btnDelete.addEventListener('click', this.handleDelete);
   }
 }
 

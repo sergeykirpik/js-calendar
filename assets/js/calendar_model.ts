@@ -1,5 +1,6 @@
-import { addDays, startOfNextMonth, startOfMonth } from './date_utils';
+import { addDays, startOfNextMonth, startOfMonth, dateDiffInDays } from './utils/date_utils';
 import EventEmitter from './emitter';
+import DateInterval from './types/date_interval';
 
 class CalendarModel extends EventEmitter {
   currentMonth: Date;
@@ -11,12 +12,44 @@ class CalendarModel extends EventEmitter {
     this.daysShown = daysShown || 42;
   }
 
+  cellIndexFromDate(date: Date): number {
+    return dateDiffInDays(this.getMinDate(), date);
+  }
+
+  colIndexFromDate(date: Date): number {
+    return this.cellIndexFromDate(date) % 7;
+  }
+
+  rowIndexFromDate(date: Date): number {
+    return Math.floor(this.cellIndexFromDate(date) / 7);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  indexesFromDateInterval({ startDate, endDate }: DateInterval) {
+    return {
+      startRow: this.rowIndexFromDate(startDate),
+      endRow: this.rowIndexFromDate(endDate),
+      startCol: this.colIndexFromDate(startDate),
+      endCol: this.colIndexFromDate(endDate),
+      startIdx: this.cellIndexFromDate(startDate),
+      endIdx: this.cellIndexFromDate(endDate),
+    };
+  }
+
   getMinDate(): Date {
     return addDays(this.currentMonth, -this.currentMonth.getDay() + 1);
   }
 
   getMaxDate(): Date {
     return addDays(this.getMinDate(), this.daysShown - 1);
+  }
+
+  getMinCellIndex(): number {
+    return this.cellIndexFromDate(this.getMinDate());
+  }
+
+  getMaxCellIndex(): number {
+    return this.cellIndexFromDate(this.getMaxDate());
   }
 
   nextMonth(): void {
