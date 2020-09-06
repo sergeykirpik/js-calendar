@@ -25,8 +25,8 @@ function setupLiveStatusUpdate(calendar: Calendar): void {
 }
 
 function setupLiveCalendarUpdate({
-  calendar, initialData, apiService
-}: { calendar: Calendar, initialData: CalendarEvent[], apiService: ApiService }): void
+  calendar, initialData, apiService, updateTimeout = DATA_UPDATE_TIMEOUT
+}: { calendar: Calendar, initialData: CalendarEvent[], apiService: ApiService, updateTimeout?: number }): void
 {
   const oldData: Record<string, CalendarEvent> = {};
   initialData.forEach((event) => {
@@ -35,7 +35,7 @@ function setupLiveCalendarUpdate({
 
   function handleTimeout() {
     if (!calendar.updatesAllowed()) {
-      setTimeout(handleTimeout, DATA_UPDATE_TIMEOUT);
+      setTimeout(handleTimeout, updateTimeout);
       return;
     }
     apiService.getAllEvents({
@@ -67,9 +67,9 @@ function setupLiveCalendarUpdate({
           }
         });
       })
-      .then(() => setTimeout(handleTimeout, DATA_UPDATE_TIMEOUT));
+      .then(() => setTimeout(handleTimeout, updateTimeout));
   }
-  setTimeout(handleTimeout, DATA_UPDATE_TIMEOUT);
+  setTimeout(handleTimeout, updateTimeout);
 }
 
 export {

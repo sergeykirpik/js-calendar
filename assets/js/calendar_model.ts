@@ -26,13 +26,24 @@ class CalendarModel extends EventEmitter {
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   indexesFromDateInterval({ startDate, endDate }: DateInterval) {
+    const minIdx = this.getMinCellIndex();
+    const maxIdx = this.getMaxCellIndex();
+
+    let startIdx = this.cellIndexFromDate(startDate);
+    startIdx = Math.max(startIdx, minIdx);
+    startIdx = Math.min(startIdx, maxIdx);
+
+    let endIdx = this.cellIndexFromDate(endDate);
+    endIdx = Math.max(endIdx, minIdx);
+    endIdx = Math.min(endIdx, maxIdx);
+
     return {
       startRow: this.rowIndexFromDate(startDate),
       endRow: this.rowIndexFromDate(endDate),
       startCol: this.colIndexFromDate(startDate),
       endCol: this.colIndexFromDate(endDate),
-      startIdx: this.cellIndexFromDate(startDate),
-      endIdx: this.cellIndexFromDate(endDate),
+      startIdx,
+      endIdx,
     };
   }
 

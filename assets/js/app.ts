@@ -13,6 +13,10 @@ import IntervalElement from './types/interval_element';
 import CalendarCellElement from './types/cell_element';
 import { showMessage } from './message_utils';
 
+window.addEventListener('error', e => {
+  showMessage('!!' + e.message);
+});
+
 const apiService = new ApiService();
 
 const calendarModel = new CalendarModel();
@@ -81,7 +85,6 @@ calendarModel.setCurrentMonth(new Date());
 
 setupLiveStatusUpdate(calendar);
 
-
 apiService.getAllEvents({
   startDate: calendarModel.getMinDate(),
   endDate: calendarModel.getMaxDate(),
@@ -89,9 +92,6 @@ apiService.getAllEvents({
   .then((data) => setupLiveCalendarUpdate({
     calendar,
     initialData: data,
-    apiService
+    apiService,
+    updateTimeout: 10000,
   }));
-
-window.addEventListener('error', e => {
-  showMessage('!!'+e.toString());
-});

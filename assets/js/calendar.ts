@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import '../css/calendar.css';
 import {
   startOfMonth,
   startOfNextMonth,
