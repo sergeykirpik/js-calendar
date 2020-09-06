@@ -31,6 +31,7 @@
     height: 1px;
     transition: all 1s;
     box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.5);
+
 }
 
 .calendar-heading-dropdown.opened {
@@ -60,11 +61,13 @@
 .btn-prev-month {
     background-image: url('../images/chevron-left.svg');
     left: 10px;
+    margin-top: -5px;
 }
 
 .btn-next-month {
     background-image: url('../images/chevron-right.svg');
     right: 10px;
+    margin-top: -5px;
 }
 
 .btn-toggle-dropdown {
@@ -81,3 +84,31 @@
 .calendar-heading .item:last-child {
     border-right: none;
 }
+
+.heading-dropdown-content {
+    overflow: hidden;
+    padding: 10px;
+    display: flex;
+    width: 100%;
+    /* align-items: center; */
+}
+
+.heading-dropdown-content .column {
+    flex: 1;
+    align-items: center;
+}
+
+.heading-dropdown-content .column.right {
+    margin-top: 45px;
+}
+
+.heading-dropdown-content h2 {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.heading-dropdown-content a {
+    text-decoration: none;
+    color: #333;
+}
+

@@ -1,0 +1,12 @@
+{% if is_granted('ROLE_ADMIN') %}
+    <h2>Send new invitation</h2>
+    <div class="dialog-container">
+        <form action="/invite" method="post">
+            <div class="form-group mb2">
+                <label for="email">Email:</label>
+                <input type="email" name="email" id="email">
+            </div>
+            <input class="btn btn-primary" type="submit" value="Invite">
+        </form>
+    </div>
+{% endif %}

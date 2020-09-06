@@ -6,16 +6,30 @@
     <div class="container">
         <div class="calendar">
             <div class="calendar-heading-wrapper">
-                <div class="heading-btn btn-prev-month"></div>
-                <div class="calendar-heading">
-                    {% for day in days_of_week %}
-                        <div class="item">{{ day }}</div>
-                    {% endfor %}
+                <div class="container" style="position: relative">
+                    <div class="heading-btn btn-prev-month"></div>
+                    <div class="calendar-heading">
+                        {% for day in days_of_week %}
+                            <div class="item">{{ day }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="heading-btn btn-next-month"></div>
                 </div>
+
                 <div class="calendar-heading-dropdown">
                     <div class="heading-btn btn-toggle-dropdown"></div>
+                    <div class="heading-dropdown-content container">
+                        <div class="column">
+                            {% include 'homepage/_invite_form.html.twig' %}
+                        </div>
+                        <div class="column">
+                        </div>
+                        <div class="column t-center right">
+                            <h2>{{ app.user.email }}</h2>
+                            <a class="btn" href="/logout">Logout</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="heading-btn btn-next-month"></div>
             </div>
             <div class="mb2"></div>
             {% for week in 0..5 %}
