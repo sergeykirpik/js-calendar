@@ -1,4 +1,4 @@
-import { showMessage } from './utils/message_utils';
+import { showMessage } from './message_utils';
 
 declare global {
   interface Window { showMessage: (msg: string) => void }

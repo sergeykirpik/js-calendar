@@ -1,6 +1,4 @@
 import '../css/app.css';
-import '../css/dialog.css';
-import '../css/message.css';
 
 import Calendar from './calendar';
 import CalendarModel from './calendar_model';
@@ -13,7 +11,7 @@ import { setupLiveStatusUpdate, setupLiveCalendarUpdate } from './live_updates';
 import { die } from './utils/assertion_utils';
 import IntervalElement from './types/interval_element';
 import CalendarCellElement from './types/cell_element';
-import { showMessage } from './utils/message_utils';
+import { showMessage } from './message_utils';
 
 const apiService = new ApiService();
 

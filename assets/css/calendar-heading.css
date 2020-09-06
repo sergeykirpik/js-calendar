@@ -1,0 +1,83 @@
+.calendar-heading-wrapper {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10px;
+}
+
+.calendar-heading {
+    display: flex;
+    margin-top: 12px;
+    padding-bottom: 20px;
+}
+
+.calendar-heading-dropdown {
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    top: 100%;
+
+    background-color: rgba(0, 0, 0, 0.9);
+    height: 1px;
+    transition: all 1s;
+    box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.5);
+}
+
+.calendar-heading-dropdown.opened {
+    height: 200px;
+}
+
+.calendar-heading-dropdown.opened .btn-toggle-dropdown {
+    transform: rotateZ(180deg);
+}
+
+.heading-btn {
+    width: 20px;
+    height: 20px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    z-index: 100;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 1s;
+}
+
+.heading-btn:hover {
+    opacity: 0.5;
+}
+
+.btn-prev-month {
+    background-image: url('../images/chevron-left.svg');
+    left: 10px;
+}
+
+.btn-next-month {
+    background-image: url('../images/chevron-right.svg');
+    right: 10px;
+}
+
+.btn-toggle-dropdown {
+    background-image: url('../images/chevron-down.svg');
+    bottom: 100%;
+}
+
+.calendar-heading .item {
+    flex: 1;
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.calendar-heading .item:last-child {
+    border-right: none;
+}

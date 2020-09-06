@@ -1,5 +1,5 @@
 import { die } from './utils/assertion_utils';
-import { showMessage } from './utils/message_utils';
+import { showMessage } from './message_utils';
 import EventEmitter from './emitter';
 import CalendarEvent from './model/calendar_event';
 import CalendarEventPatch from './model/calendar_event_patch';

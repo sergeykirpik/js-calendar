@@ -1,3 +1,5 @@
+import '../css/dialog.css';
+
 import { setElementColor } from './utils/color_utils';
 import { toLocalISODate, toLocalISOTimeWithoutSeconds } from './utils/date_utils';
 import EventEmitter from './emitter';

@@ -1,3 +1,5 @@
+import '../css/message.css';
+
 function showMessage(text: string): void {
   const el = document.createElement('div');
   el.className = 'message';
