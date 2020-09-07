@@ -1,4 +1,5 @@
 import { padWithZero } from './number_utils';
+import DateInterval from '../types/date_interval';
 
 const ONE_DAY_MS = 8.64e+7;
 
@@ -91,8 +92,48 @@ function formatDayLabel(date: Date): string {
   return `${months[date.getMonth()]}, ${date.getDate()}`;
 }
 
+function endOfWeek(date: Date): Date {
+  const dateWithoutTime = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return addDays(dateWithoutTime, 7 - date.getDay());
+}
+
+function startOfNextWeek(date: Date): Date {
+  return addDays(endOfWeek(date), 1);
+}
+
+function min(date1: Date, date2: Date): Date {
+  return date1.getTime() <= date2.getTime() ? date1 : date2;
+}
+
+function max(date1: Date, date2: Date): Date {
+  return date1.getTime() >= date2.getTime() ? date1 : date2;
+}
+
+function splitByWeeks({ startDate, endDate }: DateInterval): DateInterval[] {
+  const res = [];
+
+  const intervalStart = startDate;
+  const intervalEnd = min(endDate, endOfWeek(intervalStart));
+
+  res.push({ startDate: intervalStart, endDate: intervalEnd });
+
+  return res;
+}
+
+declare global {
+  interface Window {
+    endOfWeek: (date: Date) => Date,
+    startOfNextWeek: (date: Date) => Date,
+    splitByWeeks: (dateInterval: DateInterval) => DateInterval[],
+  }
+}
+window.endOfWeek = endOfWeek;
+window.startOfNextWeek = startOfNextWeek;
+window.splitByWeeks = splitByWeeks;
+
+
 export {
   startOfMonth, startOfNextMonth, addDays, isToday, dateDiffInDays, dateDiffHuman,
   padWithZero, toLocalISODate, toLocalISOTime, toLocalISODateAndTime, toLocalISOTimeWithoutSeconds,
-  parseISO, startOfDay, formatDayLabel
+  parseISO, startOfDay, formatDayLabel, splitByWeeks, startOfNextWeek
 };

@@ -62,6 +62,10 @@ class Calendar extends EventEmitter {
     return !this.lockUpdates;
   }
 
+  splitByDate(calendarEvent: CalendarEvent): CalendarEvent[] {
+    return [calendarEvent];
+  }
+
   render(data: Array<CalendarEvent>): void {
     this.element.querySelectorAll('.calendar-interval').forEach((el) => el.remove());
 
@@ -77,7 +81,7 @@ class Calendar extends EventEmitter {
       if (curr.startIdx < this.model.getMinCellIndex()) {
         continue;
       }
-      this.updateInterval(data[i]);
+      this.splitByDate(data[i]).forEach(this.updateInterval);
     }
   }
 
